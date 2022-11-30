@@ -1,0 +1,9 @@
+dev
+sources
+.idea
+*.swp
+dev.untitled-session/opt
+dev.untitled-session/vim/plugged
+dev.untitled-session/vim/site
+go.work
+go.work.sum
