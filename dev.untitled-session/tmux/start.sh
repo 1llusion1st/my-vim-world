@@ -15,7 +15,7 @@ export JIRA_HOST=$(cat $DEV_DIR/jira/domain)
 export JIRA_USERNAME=$(cat $DEV_DIR/jira/account)
 export JIRA_TOKEN=$(cat $DEV_DIR/jira/token)
 export JIRA_PROJECT="$(cat $DEV_DIR/jira/project)"
-export JIRA_ISSUE_STATES=$(cat $DEV_DIR/jira/issue_states)
+export JIRA_ISSUE_STATES="$(cat $DEV_DIR/jira/issue_states)"
 
 echo "TMUX_CONF_FILES: $TMUX_CONF_FILES"
 echo "SESSION_NAME: $SESSION_NAME"
