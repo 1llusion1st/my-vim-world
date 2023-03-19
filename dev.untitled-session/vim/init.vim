@@ -1,4 +1,5 @@
 set nu
+set nocompatible
 set encoding=utf-8
 set nobackup
 set nowritebackup
@@ -12,6 +13,7 @@ filetype on
 
 lua print('this also works')
 set runtimepath+=./dev/vim/lua
+set runtimepath+=./dev/vim
 
 " session
 set sessionoptions=blank,buffers,curdir,folds,help,options,tabpages,winsize
@@ -34,6 +36,23 @@ nmap ga :GoAlternate<CR>
 nmap gD :GoDefPop<CR>
 nmap tf :GoTestFunc<CR>
 
+" markdown preview config
+let g:mkdp_filetypes = ['markdown']
+let g:mkdp_preview_options = {
+    \ 'mkit': {},
+    \ 'katex': {},
+    \ 'uml': {},
+    \ 'maid': {},
+    \ 'disable_sync_scroll': 0,
+    \ 'sync_scroll_type': 'middle',
+    \ 'hide_yaml_meta': 1,
+    \ 'sequence_diagrams': {},
+    \ 'flowchart_diagrams': {},
+    \ 'content_editable': v:false,
+    \ 'disable_filename': 0,
+    \ 'toc': {}
+    \ }
+
 " Markdown runner
 nmap <Space>r :<C-U>MarkdownRunner<CR>
 
@@ -43,6 +62,21 @@ vnoremap <Space>Y :'<,'>:w !DISPLAY=:0 xclip -selection clipboard<CR>
 "
 " UML plugin
 let g:preview_uml_url='http://localhost:4040'
+
+" d2 config
+"
+  let g:d2_block_string_syntaxes = {
+        \ 'd2': ['d2'],
+        \ 'markdown': ['md', 'markdown'],
+        \ 'javascript': ['javascript', 'js'],
+        \ 'html': ['html'],
+        \ 'json': ['json'],
+        \ 'c': ['c'],
+        \ 'go': ['go'],
+        \ 'sh': ['sh', 'ksh', 'bash'],
+        \ 'css': ['css'],
+        \ 'vim': ['vim'],
+        \ }
 
 " Tags 
 nmap <Space>t :<C-U>TagbarToggle<CR>
@@ -62,11 +96,19 @@ let g:go_build_tags = "integration integration_db integration_rmq fullcycle inte
 let g:go_build_flags = '-tags="integration integration_db integration_rmq fullcycle integration_testnet integration_testnet_skip"'
 let g:go_term_mode='split'
 
+let g:lua_syntax_someoption = 1
+
+" Google services
+let g:translator_target_lang='en'
+let g:translator_history_enable=v:true
+let g:translator_window_type='popup' 
+" else 'preview'
 
 "coc config
 set updatetime=300
 let g:coc_config_home = "./dev/vim"
 set signcolumn=yes
+let g:coc_global_extensions = ['coc-tslint-plugin', 'coc-tsserver', 'coc-css', 'coc-html', 'coc-json', 'coc-prettier']  " list of CoC extensions needed
 inoremap <silent><expr><TAB>
       \ coc#pum#visible() ? coc#pum#next(1) :
       \ CheckBackspace() ? "\<Tab>" :
@@ -207,6 +249,8 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'j-morano/buffer_manager.nvim'
 Plug 'chentoast/marks.nvim'
+Plug 'tbastos/vim-lua'
+Plug 'jsfaint/gen_tags.vim'
 
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'preservim/nerdtree' |
@@ -225,15 +269,28 @@ Plug 'airblade/vim-gitgutter'
 " Plug 'itchyny/lightline.vim'
 
 " general coding plugins
+Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-commentary'
 Plug 'andrewferrier/wrapping.nvim'
 Plug 'tpope/vim-surround'
 Plug 'neovim/nvim-lspconfig'
+Plug 'SirVer/ultisnips'
+
+Plug 'MarcWeber/vim-addon-mw-utils'
+Plug 'tomtom/tlib_vim'
+Plug 'honza/vim-snippets'
+Plug 'garbas/vim-snipmate'
+
 
 " Go 
 Plug 'fatih/vim-go'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'hexdigest/gounit-vim'
+
+" JS
+Plug 'yuezk/vim-js'
+Plug 'HerringtonDarkholme/yats.vim'
+Plug 'maxmellon/vim-jsx-pretty'
 
 " browser integration
 Plug 'tyru/open-browser.vim'
@@ -242,9 +299,18 @@ Plug 'tyru/open-browser.vim'
 Plug 'aklt/plantuml-syntax'
 Plug 'skanehira/preview-uml.vim'
 Plug 'weirongxu/plantuml-previewer.vim' " previewer
+Plug 'scrooloose/vim-slumlord' " console preview
+
+" d2
+Plug 'terrastruct/d2-vim'
 
 " markdown
 Plug 'preservim/vim-markdown'
+" Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'junegunn/vim-easy-align'
+Plug 'elzr/vim-json'
+Plug 'vim-pandoc/vim-pandoc-syntax'
+
 
 Plug 'michaelb/sniprun', {'do': 'bash install.sh'}
 Plug 'voldikss/vim-floaterm'
@@ -261,8 +327,8 @@ Plug 'nvim-tree/nvim-web-devicons' " Recommended (for coloured icons)
 " Plug 'akinsho/bufferline.nvim', { 'tag': 'v3.*' }
 
 " misc
-Plug 'junegunn/vim-easy-align'
 Plug 'nvim-lua/plenary.nvim'
+Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 
 " vertical block lines
 Plug 'lukas-reineke/indent-blankline.nvim'
@@ -278,12 +344,23 @@ Plug 'ziontee113/icon-picker.nvim'
 Plug 'itchyny/calendar.vim'
 Plug 'majutsushi/tagbar'
 
+" google services
+Plug 'voldikss/vim-translator'
+
+" stackoverflow
+Plug 'https://github.com/mickaobrien/vim-stackoverflow'
+
 " my plugins/forks
+Plug '1llusion1st/nvim-json2gostruct'
 Plug '1llusion1st/nvim-markdown-runner'
 Plug '1llusion1s/nvim-jira'
-Plug '1llusion1s/nvim-json2gostruct'
+Plug '1llusion1st/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 'markdown' }
+Plug '1llusion1st/nvim-openai'
 
 call plug#end()
+
+au FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
+
 
 " select the color scheme
 let g:gruvbox_transparent_bg = '1'
@@ -316,6 +393,13 @@ let g:NERDTreeGitStatusIndicatorMapCustom = {
 let g:tmux_navigator_no_mappings = 1
 let g:tmux_navigator_save_on_switch = 2
 
+let g:mkdp_refresh_slow = 1
+function OpenMarkdownPreview (url)
+    execute "silent ! brave-browser --new-window " .  a:url
+endfunction
+let g:mkdp_browserfunc = 'OpenMarkdownPreview'
+let g:mkdp_auto_close = 0
+
 " Google calendar & task
 " let g:calendar_google_calendar = 1
 " let g:calendar_google_task = 1
@@ -332,6 +416,14 @@ noremap <C-j> :<C-U>TmuxNavigateDown<cr>
 noremap <C-k> :<C-U>TmuxNavigateUp<cr>
 
 let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_frontmatter = 1  " for YAML format
+let g:vim_markdown_toml_frontmatter = 1  " for TOML format
+let g:vim_markdown_json_frontmatter = 1  " for JSON format
+let g:vim_markdown_toc_autofit = 1
+
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger  = '<A-d>'
+let g:UltiSnipsJumpBackwardTrigger = '<A-a>'
 
 " marks
 lua << EOF
@@ -397,6 +489,9 @@ local lspconfig = require'lspconfig'
 	}
   }
 EOF
+
+lua require("toggleterm").setup()
+
 
 " set modifiable
 "
