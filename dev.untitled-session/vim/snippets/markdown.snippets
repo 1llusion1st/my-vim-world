@@ -1,0 +1,52 @@
+# Markdown
+
+# Includes octopress (http://octopress.org/) snippets
+
+# The suffix `c` stands for "Clipboard".
+
+snippet SNGO
+	\`\`\`go
+	package main
+	// ID: 				${1:id}
+	// OUTFORMAT: ${2:json}
+	// OUTFILE: 	${3:file}
+	// POST_CMD:  ${4:cat file}
+
+	func main() {
+
+	}
+	\`\`\`
+snippet SNSH
+	# ID: 				${1:id}
+	# OUTFORMAT:  ${2:json}
+	# OUTFILE: 	  ${3:file}
+	# POST_CMD:   ${4:cat file}
+snippet SNR
+	[comment]: GENERATE_REQ_BEGIN
+snippet SNE
+	[comment]: GENERATE_REQ_END
+
+snippet SNCURLGET
+	curl request
+	\`\`\`bash
+	# ID: 				${1:id}
+	# OUTFORMAT:  ${2:json}
+	# OUTFILE: 	  ${3:file}
+	# POST_CMD:   ${4:cat file}
+	curl -X GET ${5:service_base_url}/ 2>/dev/null | jq
+	\`\`\`
+
+snippet SNCURLPOST
+	curl request
+	\`\`\`bash
+	# ID: 				${1:id}
+	# OUTFORMAT:  ${2:json}
+	# OUTFILE: 	  ${3:file}
+	# POST_CMD:   ${4:cat file}
+	curl -X POST ${5:service_base_url}/ 2>/dev/null -d '
+	{
+
+	}
+	' | jq
+	\`\`\`
+
