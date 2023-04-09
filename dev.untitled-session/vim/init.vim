@@ -3,6 +3,10 @@ set nocompatible
 set encoding=utf-8
 set nobackup
 set nowritebackup
+set foldcolumn=2
+set guioptions-=e
+set sessionoptions+=tabpages,globals
+
 nnoremap <Left> :echoe "Use h"<CR>
 nnoremap <Right> :echoe "Use l"<CR>
 nnoremap <Up> :echoe "Use k"<CR>
@@ -15,6 +19,10 @@ lua print('this also works')
 set runtimepath+=./dev/vim/lua
 set runtimepath+=./dev/vim
 
+let g:debug_print = 0
+
+set foldcolumn=2
+
 " session
 set sessionoptions=blank,buffers,curdir,folds,help,options,tabpages,winsize
 
@@ -24,16 +32,35 @@ nmap <Space>! :<C-U>FloatermNew<CR>
 "navigation
 "windows
 "buffers
+
 nmap <Space>b :<C-U>bp<CR>
 nmap <Space>p :<C-U>bnext<CR>
-nmap <Space>B :<C-U>lua require("buffer_manager.ui").toggle_quick_menu()<CR>
+" nmap <Space>B :<C-U>lua require("buffer_manager.ui").toggle_quick_menu()<CR>
+nmap <Space>F :<C-U>:Files<CR>
+nmap <Space>B :<C-U>:Buffers<CR>
 "tabs
-nmap <Space>R :<C-U>tabNext<CR>
+nmap <Space>R :<C-U>tabp<CR>
+nmap <Space>N :<C-U>tabn<CR>
+" let g:nerdtree_tabs_meaningful_tab_names=1
+" let g:taboo_tabline=0
+" let g:airline#extensions#tabline#enabled = 1
+" function! CondensedPath() abort
+"     if expand(':h') == '/'
+"         return '/' . expand('%:t')
+"     else
+"         return pathshorten(expand('%:h')) . '/' . expand('%:t')
+"     endif
+" endfunction
+
+" let g:airline_section_c='%{CondensedPath()}'
+
+
+nmap <Space>h :MarkdownRunnerInsert<CR>
 " nmap <S"> :<C-U>vertical resize -5<CR>
 " nmap <S-+> :<C-U>vertical resize +5<CR>
 "
 nmap ga :GoAlternate<CR>
-nmap gD :GoDefPop<CR>
+nmap gB :GoDefPop<CR>
 nmap tf :GoTestFunc<CR>
 
 " markdown preview config
@@ -43,7 +70,7 @@ let g:mkdp_preview_options = {
     \ 'katex': {},
     \ 'uml': {},
     \ 'maid': {},
-    \ 'disable_sync_scroll': 0,
+   \ 'disable_sync_scroll': 0,
     \ 'sync_scroll_type': 'middle',
     \ 'hide_yaml_meta': 1,
     \ 'sequence_diagrams': {},
@@ -79,12 +106,32 @@ let g:preview_uml_url='http://localhost:4040'
         \ }
 
 " Tags 
-nmap <Space>t :<C-U>TagbarToggle<CR>
+"
+
+lua << EOF
+function show_tags_or_toc()
+  -- print(vim.bo.filetype)
+  if vim.bo.filetype == 'qf' then
+    vim.cmd('q')
+  elseif vim.bo.filetype == 'markdown' then
+    vim.cmd('Toc')
+  else
+    vim.cmd('Tagbar')
+  end
+end
+
+EOF
+
+nmap <Space>t :<C-U>lua show_tags_or_toc()<CR>
+
+autocmd FileType qf nnoremap q : q<CR>
 
 "NerdTree
 "
 " nmap <Space>t :<C-U>NERDTree<CR>
 nmap <Space>T :<C-U>NERDTreeToggle<CR>
+let g:NERDTreeShowLineNumbers=1
+let g:NERDTreeGitStatusShowClean = 1 " default: 0
 
 "fzf config
 nmap <Space>f :<C-U>FZF<CR>
@@ -94,6 +141,7 @@ let g:go_test_timeout= '300s'
 let g:go_test_show_name = 1
 let g:go_build_tags = "integration integration_db integration_rmq fullcycle integration_testnet integration_testnet_skip"
 let g:go_build_flags = '-tags="integration integration_db integration_rmq fullcycle integration_testnet integration_testnet_skip"'
+
 let g:go_term_mode='split'
 
 let g:lua_syntax_someoption = 1
@@ -104,11 +152,24 @@ let g:translator_history_enable=v:true
 let g:translator_window_type='popup' 
 " else 'preview'
 
+" timemanagement
+let g:tt_use_defaults = 1
+
+
 "coc config
 set updatetime=300
-let g:coc_config_home = "./dev/vim"
 set signcolumn=yes
-let g:coc_global_extensions = ['coc-tslint-plugin', 'coc-tsserver', 'coc-css', 'coc-html', 'coc-json', 'coc-prettier']  " list of CoC extensions needed
+
+let g:coc_config_home = "./dev/vim"
+let g:coc_global_extensions = [ 
+        \ 'coc-tslint-plugin',
+        \ 'coc-tsserver', 
+        \ 'coc-css', 
+        \ 'coc-html',
+        \ 'coc-json',
+        \ 'coc-prettier'
+        \ ]  " list of CoC extensions needed
+
 inoremap <silent><expr><TAB>
       \ coc#pum#visible() ? coc#pum#next(1) :
       \ CheckBackspace() ? "\<Tab>" :
@@ -245,7 +306,11 @@ call plug#begin("./dev/vim/plugged")
 
 " navigation
 
+Plug 'junegunn/goyo.vim'
+
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'j-morano/buffer_manager.nvim'
 Plug 'chentoast/marks.nvim'
@@ -258,6 +323,7 @@ Plug 'preservim/nerdtree' |
            \ Plug 'ryanoasis/vim-devicons'
 
 " tabs
+" Plug 'jistr/vim-nerdtree-tabs'
 Plug 'gcmt/taboo.vim'
 Plug 'godlygeek/tabular'
 
@@ -304,6 +370,9 @@ Plug 'scrooloose/vim-slumlord' " console preview
 " d2
 Plug 'terrastruct/d2-vim'
 
+" DB tools
+Plug 'dinhhuy258/vim-database', {'branch': 'master', 'do': ':UpdateRemotePlugins'}
+
 " markdown
 Plug 'preservim/vim-markdown'
 " Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
@@ -317,6 +386,7 @@ Plug 'voldikss/vim-floaterm'
 
 " themes
 Plug 'Dave-Elec/gruvbox'
+Plug 'danilo-augusto/vim-afterglow'
 
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -347,8 +417,17 @@ Plug 'majutsushi/tagbar'
 " google services
 Plug 'voldikss/vim-translator'
 
+" chatgpt
+Plug 'MunifTanjim/nui.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'jackMort/ChatGPT.nvim'
+Plug 'dpayne/CodeGPT.nvim'
+
 " stackoverflow
 Plug 'https://github.com/mickaobrien/vim-stackoverflow'
+
+" timemanagement
+Plug 'mkropat/vim-tt'
 
 " my plugins/forks
 Plug '1llusion1st/nvim-json2gostruct'
@@ -361,16 +440,55 @@ call plug#end()
 
 au FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
 
+lua << EOF
+require("buffer_manager").setup({
+    width = 100,
+    select_menu_item_commands = {
+    v = {
+      key = "<C-v>",
+      command = "vsplit"
+    },
+    h = {
+      key = "<C-h>",
+      command = "split"
+    }
+  }
+})
+EOF
+
+""" THEMEs
 
 " select the color scheme
-let g:gruvbox_transparent_bg = '1'
-colorscheme gruvbox
+" let g:gruvbox_transparent_bg = '1'
+" colorscheme gruvbox
+
+colorscheme afterglow
+let g:airline_theme='afterglow'
+let g:afterglow_inherit_background=1
+let g:afterglow_blackout=1
 
 " In your init.lua or init.vim
 set termguicolors
 "lua << EOF
 "require("bufferline").setup{}
 "EOF
+"
+function GruvBoxLight()
+  colorscheme gruvbox
+  set background=light
+  let g:airline_theme='gruvbox'
+endfunction
+
+function GruvBoxDark()
+  colorscheme gruvbox
+  set background=dark
+  let g:airline_theme='gruvbox'
+endfunction
+
+call GruvBoxLight()
+call GruvboxHlsShowCursor()
+
+""" END THEMEs
 
 lua << EOF
 require("icon-picker").setup({ disable_legacy_commands = true })
@@ -420,6 +538,7 @@ let g:vim_markdown_frontmatter = 1  " for YAML format
 let g:vim_markdown_toml_frontmatter = 1  " for TOML format
 let g:vim_markdown_json_frontmatter = 1  " for JSON format
 let g:vim_markdown_toc_autofit = 1
+let g:vim_markdown_frontmatter = 1
 
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger  = '<A-d>'
@@ -491,7 +610,14 @@ local lspconfig = require'lspconfig'
 EOF
 
 lua require("toggleterm").setup()
+lua << EOF
+require("chatgpt").setup({
+  keymaps = {
+          submit = "<C-s>"
+  }
 
+})
+EOF
 
 " set modifiable
 "

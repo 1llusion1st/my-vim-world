@@ -1,0 +1,21 @@
+# Go
+
+# Includes octopress (http://octopress.org/) snippets
+
+# The suffix `c` stands for "Clipboard".
+
+snippet iferr
+	if err != nil {
+		${1}
+	}
+
+snippet iferrle
+	if err != nil {
+		.Errorf("error while ${1}:", err)
+	}
+
+snippet iferrler
+	if err != nil {
+		.Errorf("error while ${1}:", err)
+		return ${2}
+	}

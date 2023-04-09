@@ -8,6 +8,8 @@ TMUX_CONF_FILES=$(ls $TMUX_DIR/*.tmux | sort)
 SESSION_NAME=`python -c "print(\"$DEV_DIR\".split(\"/\")[-1].split(\".\")[1])" 2>/dev/null`
 VIM_DIR=$DEV_DIR/vim
 
+pyenv activate neovim
+
 echo "DEV_DIR: $DEV_DIR"
 
 GOBIN=~/go/bin
@@ -17,6 +19,7 @@ export PATH="$GOBIN:$PATH"
 # OPENAI
 export OPENAI_ORG="$(cat $DEV_DIR/etc/openai.com/org)"
 export OPENAI_APIKEY="$(cat $DEV_DIR/etc/openai.com/api.key)"
+export OPENAI_API_KEY=$OPENAI_APIKEY
 
 # JIRA
 export JIRA_HOST=$(cat $DEV_DIR/jira/domain)
@@ -61,7 +64,7 @@ docker container rm d2server || echo not present
 docker run -d --name d2server -p 4041:8000 andriyvasyltsiv/d2server
 export D2SERVER='http://localhost:7001'
 
-tmux new-session -d -s $SESSION_NAME -x "$(tput cols)" -y "$(tput lines)" -n main \; send-keys $DEV_DIR/opt/nvim/bin/nvim\ -u\ $DEV_DIR/vim/init.vim ENTER ;
+tmux new-session -d -s $SESSION_NAME -x "$(tput cols)" -y "$(tput lines)" -n main \; send-keys $DEV_DIR/opt/nvim/bin/nvim\ -u\ $DEV_DIR/vim/init.vim\ todo.txt ENTER ;
 echo "SESSION CREATED ? $?"
 tmux setenv GOBIN ~/go/bin
 tmux setenv GOPATH ~/go
@@ -79,5 +82,7 @@ for file in $TMUX_CONF_FILES; do
 done;
 
 tmux display 'LOADED'
+tmux set -g status off
+
 tmux a -t $SESSION_NAME  ;
 
