@@ -1,0 +1,9 @@
+[submodule "dev.untitled-session/awesomewm/net_widgets"]
+	path = dev.untitled-session/awesomewm/net_widgets
+	url = https://github.com/pltanton/net_widgets.git
+[submodule "dev.untitled-session/awesomewm/awesome-wm-widgets"]
+	path = dev.untitled-session/awesomewm/awesome-wm-widgets
+	url = https://github.com/streetturtle/awesome-wm-widgets
+[submodule "dev.untitled-session/awesomewm/keyboard_layout"]
+	path = dev.untitled-session/awesomewm/keyboard_layout
+	url = https://github.com/echuraev/keyboard_layout

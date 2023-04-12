@@ -22,6 +22,17 @@ require("awful.hotkeys_popup.keys")
 local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
+-- local libs
+local l_misc = require "modules/misc"
+local l_opacity = require "modules/opacity"
+local l_display = require "modules/display"
+
+math.randomseed(os.time())
+
+l_opacity.init_opacity_manager()
+l_display.suppress_display_offline()
+
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -49,7 +60,64 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+-- beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+beautiful.init(gears.filesystem.get_configuration_dir() .. "mytheme.lua")
+
+-- my custom widgets
+local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")
+local batteryarc_widget = require("awesome-wm-widgets.batteryarc-widget.batteryarc")
+local docker_widget = require("awesome-wm-widgets.docker-widget.docker")
+local net_speed_widget = require("awesome-wm-widgets.net-speed-widget.net-speed")
+local ram_widget = require("awesome-wm-widgets.ram-widget.ram-widget")
+local cpu_widget = require("awesome-wm-widgets.cpu-widget.cpu-widget")
+local brightness_widget = require("awesome-wm-widgets.brightness-widget.brightness")
+local net_widgets = require("net_widgets")
+-- local connman = require("connman_widget")
+-- connman.gui_client = "wicd"
+
+-- volume widget
+local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
+
+
+-- keyboard layout widget
+local keyboard_layout = require("keyboard_layout")
+local kbdcfg = keyboard_layout.kbdcfg({type = "tui"})
+
+kbdcfg.add_primary_layout("English", "🇺🇸 US", "us")
+kbdcfg.add_primary_layout("Ukrainian", "🇺🇦 UA", "ua")
+kbdcfg.add_primary_layout("оркостанський", "💩 орк", "ru")
+
+-- kbdcfg.add_primary_layout("English", beautiful.en_layout, "us")
+-- kbdcfg.add_primary_layout("оркостанський", beautiful.ru_layout, "ru")
+-- kbdcfg.add_primary_layout("Ukrainian", beautiful.ua_layout, "ua")
+
+kbdcfg.bind()
+
+kbdcfg.widget:buttons(
+ awful.util.table.join(awful.button({ }, 1, function () kbdcfg.switch_next() end),
+                       awful.button({ }, 3, function () kbdcfg.menu:toggle() end))
+)
+-- END
+--
+
+-- MICROPHONE widget
+local widgets = {
+    mic = require("widgets/mic"),
+    coingecko = require("widgets/coingecko")
+}
+local theme_mic = widgets.mic({
+    timeout = 10,
+    settings = function(self)
+        if self.state == "muted" then
+            self.widget:set_image(theme_mic.widget_micMuted)
+        else
+            self.widget:set_image(theme_mic.widget_micUnmuted)
+        end
+    end
+})
+local widget_mic = wibox.widget { theme_mic.widget, layout = wibox.layout.align.horizontal }
+
+net_wireless = net_widgets.wireless({interface="wlp1s0"})
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
@@ -126,6 +194,19 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 -- {{{ Wibar
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
+local cw = calendar_widget({
+    theme = 'outrun',
+    placement = 'bottom_right',
+    start_sunday = true,
+    radius = 8,
+-- with customized next/previous (see table above)
+    previous_month_button = 1,
+    next_month_button = 3,
+})
+mytextclock:connect_signal("button::press",
+    function(_, _, _, button)
+        if button == 1 then cw.toggle() end
+    end)
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -167,15 +248,30 @@ local tasklist_buttons = gears.table.join(
                                               awful.client.focus.byidx(-1)
                                           end))
 
+local function get_wallpaper(s)
+    local dir = "~/Downloads/wallpapers"
+    local files = l_misc.scandir(dir)
+    -- naughty.notify({text = (string.format('files len: %s', #files))})
+    if #files > 0 then
+        return l_misc.expanduser(dir.."/"..files[math.random(1, #files)])
+    end
+    return ""
+end
+
 local function set_wallpaper(s)
     -- Wallpaper
     if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
+        local wallpaper = get_wallpaper
         -- If wallpaper is a function, call it with the screen
         if type(wallpaper) == "function" then
             wallpaper = wallpaper(s)
         end
-        gears.wallpaper.maximized(wallpaper, s, true)
+        if wallpaper ~= "" then
+
+            -- naughty.notify({text = ('setting wallpaper: '..wallpaper)})
+            gears.wallpaper.maximized(wallpaper, s, true)
+
+        end
     end
 end
 
@@ -214,7 +310,12 @@ awful.screen.connect_for_each_screen(function(s)
     }
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    s.mywibox = awful.wibar(
+        { 
+            position = "top",
+            screen = s,
+            -- bg = beautiful.bg_normal .. "bb"
+        })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -228,9 +329,47 @@ awful.screen.connect_for_each_screen(function(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
+            -- mykeyboardlayout,
+            widget_mic,
             wibox.widget.systray(),
+            volume_widget{
+                widget_type = 'arc',
+                step = 10
+            },
+            net_wireless,
+            wibox.widget.textbox('  |  '),
+            widgets.coingecko({
+                    coins={"kyrrex", "bitcoin", "ethereum", "fantom", "inery", "qmall"},
+                    shorts={
+                        kyrrex="krrx",
+                        bitcoin="btc",
+                        ethereum="eth",
+                        fantom="ftm",
+                        inery="inr",
+                        qmall="qml",
+                    },
+                    coins_to_show=6,
+                }),
+            -- connman,
+            kbdcfg.widget,
+            cpu_widget({
+                width = 70,
+                step_width = 2,
+                step_spacing = 0,
+                color = '#434c5e'
+            }),
+            ram_widget(),
+            net_speed_widget(),
+            docker_widget(),
             mytextclock,
+            batteryarc_widget({
+                show_current_level = true,
+                arc_thickness = 1,
+            }),
+            brightness_widget({
+                type = 'icon_and_text',
+                step = 2,  
+            }),
             s.mylayoutbox,
         },
     }
@@ -245,8 +384,63 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
+--{{{ Client handling
+
+-- opacity
+l_opacity.setup_opacity(client)
+--}}}
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
+    awful.key({ modkey }, "`",
+        function ()
+            local c = client.focus
+            if c then
+                l_opacity.decrease_opacity(c)
+            end
+        end,
+        {description ="decrease client opacity", group="client-opacity"}
+    ),
+    awful.key({ modkey, "Shift" }, "`",
+        function ()
+            local c = client.focus
+            if c then
+                l_opacity.increase_opacity(c)
+            end
+        end,
+        {description ="increase client opacity", group="client-opacity"}
+    ),
+    awful.key(
+        { modkey }, "0", function()
+            kbdcfg.switch_by_name("English")
+        end,
+        {description ="change language to English", group="keyboard"}
+    ),
+    awful.key(
+        { modkey, "Shift" }, "r", function()
+            kbdcfg.switch_by_name("оркостанський")
+        end,
+        {description ="change language to oркостанський", group="keyboard"}
+    ),
+    awful.key(
+        { modkey, "Shift" }, "u", function()
+            kbdcfg.switch_by_name("Ukrainian")
+        end,
+        {description ="change language to Ukrainian", group="keyboard"}
+    ),
+    awful.key(
+        { modkey         }, ";", function ()
+            brightness_widget:inc()
+        end, {description = "increase brightness", group = "display"}),
+    awful.key(
+        { modkey, "Shift"}, ";", function ()
+            brightness_widget:dec()
+        end, {description = "decrease brightness", group = "display"}),
+		awful.key({}, "Print",
+				function()
+						awful.util.spawn("flameshot gui")
+					end,
+					{description = "Spawn Flameshot", group="display"}),
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
@@ -394,52 +588,67 @@ clientkeys = gears.table.join(
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it work on any keyboard layout.
 -- This should map on the top row of your keyboard, usually 1 to 9.
-for i = 1, 9 do
-    globalkeys = gears.table.join(globalkeys,
-        -- View tag only.
-        awful.key({ modkey }, "#" .. i + 9,
-                  function ()
-                        local screen = awful.screen.focused()
-                        local tag = screen.tags[i]
-                        if tag then
-                           tag:view_only()
-                        end
-                  end,
-                  {description = "view tag #"..i, group = "tag"}),
-        -- Toggle tag display.
-        awful.key({ modkey, "Control" }, "#" .. i + 9,
-                  function ()
-                      local screen = awful.screen.focused()
-                      local tag = screen.tags[i]
-                      if tag then
-                         awful.tag.viewtoggle(tag)
-                      end
-                  end,
-                  {description = "toggle tag #" .. i, group = "tag"}),
-        -- Move client to tag.
-        awful.key({ modkey, "Shift" }, "#" .. i + 9,
-                  function ()
-                      if client.focus then
-                          local tag = client.focus.screen.tags[i]
+local function setup_globals_keys()
+    for i = 1, 9 do
+        globalkeys = gears.table.join(globalkeys,
+            -- View tag only.
+            awful.key({ modkey }, "#" .. i + 9,
+                      function ()
+                            local screen = awful.screen.focused()
+                            local tag = screen.tags[i]
+                            if tag then
+                               tag:view_only()
+                            end
+                      end,
+                      {description = "view tag #"..i, group = "tag"}),
+            -- Toggle tag display.
+            awful.key({ modkey, "Control" }, "#" .. i + 9,
+                      function ()
+                          local screen = awful.screen.focused()
+                          local tag = screen.tags[i]
                           if tag then
-                              client.focus:move_to_tag(tag)
+                             awful.tag.viewtoggle(tag)
                           end
-                     end
-                  end,
-                  {description = "move focused client to tag #"..i, group = "tag"}),
-        -- Toggle tag on focused client.
-        awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9,
-                  function ()
-                      if client.focus then
-                          local tag = client.focus.screen.tags[i]
-                          if tag then
-                              client.focus:toggle_tag(tag)
+                      end,
+                      {description = "toggle tag #" .. i, group = "tag"}),
+            -- Move client to tag.
+            awful.key({ modkey, "Shift" }, "#" .. i + 9,
+                      function ()
+                          if client.focus then
+                              local tag = client.focus.screen.tags[i]
+                              if tag then
+                                  client.focus:move_to_tag(tag)
+                              end
+                         end
+                      end,
+                      {description = "move focused client to tag #"..i, group = "tag"}),
+            -- Toggle tag on focused client.
+            awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9,
+                      function ()
+                          if client.focus then
+                              local tag = client.focus.screen.tags[i]
+                              if tag then
+                                  client.focus:toggle_tag(tag)
+                              end
                           end
-                      end
-                  end,
-                  {description = "toggle focused client on tag #" .. i, group = "tag"})
-    )
+                      end,
+                      {description = "toggle focused client on tag #" .. i, group = "tag"}),
+            
+            -- my custom key bindings
+            awful.key({ modkey }, "Shift", function()
+                naughty.notify({
+                        text="changing language"
+                    })
+                kbdcfg.switch_next()
+            end),
+            awful.key({ modkey }, "]", function() volume_widget:inc(1) end),
+            awful.key({ modkey }, "[", function() volume_widget:dec(1) end),
+            awful.key({ modkey }, "\\", function() volume_widget:toggle() end)
+        )
+    end
 end
+
+setup_globals_keys()
 
 clientbuttons = gears.table.join(
     awful.button({ }, 1, function (c)
@@ -577,6 +786,5 @@ client.connect_signal("mouse::enter", function(c)
     c:emit_signal("request::activate", "mouse_enter", {raise = false})
 end)
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
-client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+--

@@ -64,7 +64,7 @@ docker container rm d2server || echo not present
 docker run -d --name d2server -p 4041:8000 andriyvasyltsiv/d2server
 export D2SERVER='http://localhost:7001'
 
-tmux new-session -d -s $SESSION_NAME -x "$(tput cols)" -y "$(tput lines)" -n main \; send-keys $DEV_DIR/opt/nvim/bin/nvim\ -u\ $DEV_DIR/vim/init.vim\ todo.txt ENTER ;
+tmux new-session -d -s $SESSION_NAME -x "$(tput cols)" -y "$(tput lines)" -n main \; send-keys $DEV_DIR/opt/nvim/bin/nvim\ -u\ $DEV_DIR/vim/init.vim\ TODO.md ENTER ;
 echo "SESSION CREATED ? $?"
 tmux setenv GOBIN ~/go/bin
 tmux setenv GOPATH ~/go

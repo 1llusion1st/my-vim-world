@@ -12,10 +12,14 @@ nnoremap <Right> :echoe "Use l"<CR>
 nnoremap <Up> :echoe "Use k"<CR>
 nnoremap <Down> :echoe "Use j"<CR>
 
+lua vim.g.loaded_netrw = 1
+lua vim.g.loaded_netrwPlugin = 1
+
 set mouse=
 filetype on
 
 lua print('this also works')
+set rtp +=~/.vim
 set runtimepath+=./dev/vim/lua
 set runtimepath+=./dev/vim
 
@@ -129,7 +133,6 @@ autocmd FileType qf nnoremap q : q<CR>
 "NerdTree
 "
 " nmap <Space>t :<C-U>NERDTree<CR>
-nmap <Space>T :<C-U>NERDTreeToggle<CR>
 let g:NERDTreeShowLineNumbers=1
 let g:NERDTreeGitStatusShowClean = 1 " default: 0
 
@@ -167,7 +170,7 @@ let g:coc_global_extensions = [
         \ 'coc-css', 
         \ 'coc-html',
         \ 'coc-json',
-        \ 'coc-prettier'
+        \ 'coc-prettier',
         \ ]  " list of CoC extensions needed
 
 inoremap <silent><expr><TAB>
@@ -317,10 +320,12 @@ Plug 'chentoast/marks.nvim'
 Plug 'tbastos/vim-lua'
 Plug 'jsfaint/gen_tags.vim'
 
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+" Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'preservim/nerdtree' |
            \ Plug 'Xuyuanp/nerdtree-git-plugin' |
            \ Plug 'ryanoasis/vim-devicons'
+
+Plug 'nvim-tree/nvim-tree.lua'
 
 " tabs
 " Plug 'jistr/vim-nerdtree-tabs'
@@ -335,12 +340,14 @@ Plug 'airblade/vim-gitgutter'
 " Plug 'itchyny/lightline.vim'
 
 " general coding plugins
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-commentary'
 Plug 'andrewferrier/wrapping.nvim'
 Plug 'tpope/vim-surround'
 Plug 'neovim/nvim-lspconfig'
 Plug 'SirVer/ultisnips'
+" Plug 'mortonfox/nerdtree-clip'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
@@ -357,6 +364,9 @@ Plug 'hexdigest/gounit-vim'
 Plug 'yuezk/vim-js'
 Plug 'HerringtonDarkholme/yats.vim'
 Plug 'maxmellon/vim-jsx-pretty'
+
+" Python
+Plug 'yaegassy/coc-pylsp', {'do': 'yarn install --frozen-lockfile'}
 
 " browser integration
 Plug 'tyru/open-browser.vim'
@@ -423,6 +433,8 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'jackMort/ChatGPT.nvim'
 Plug 'dpayne/CodeGPT.nvim'
 
+Plug 'nvim-telescope/telescope-file-browser.nvim'
+
 " stackoverflow
 Plug 'https://github.com/mickaobrien/vim-stackoverflow'
 
@@ -488,7 +500,83 @@ endfunction
 call GruvBoxLight()
 call GruvboxHlsShowCursor()
 
-""" END THEMEs
+" NERDTree EXTENSIONS
+" Nerdtree copy files between diff trees 
+"
+
+function! NERDTreeClipPathDir()
+    let curFileNode = g:NERDTreeFileNode.GetSelected()
+    let path = fnamemodify(curFileNode.path.str(), ':p:h')
+    let @* = path
+    redraw
+    echomsg 'Copied to clipboard: '.path
+endfunction
+
+function! NERDTreeCopyToYankedPathHeadless()
+  call NERDTreeCopyToYankedPath(1)
+endfunction
+
+function! NERDTreeCopyToYankedPathNotHeadless()
+  call NERDTreeCopyToYankedPath(0)
+endfunction
+
+function! NERDTreeCopyToYankedPath(headless)
+    let curFileNode = g:NERDTreeFileNode.GetSelected()
+    let path = fnamemodify(curFileNode.path.str(), ':p')
+    let fname = fnamemodify(curFileNode.path.str(), ':t')
+    let dst = @*.'/'.fname
+    echomsg 'copiing '.path.' to '.dst
+    call CopyFile(path, dst, a:headless)
+    echomsg path.' copied to '.@*
+endfunction
+
+function! CopyFile(src, dest, headless)
+  let src_path = expand(a:src)
+  let dest_path = expand(a:dest)
+
+  if filereadable(src_path)
+    new
+    execute 'read ' . src_path
+    execute 'write! ' . dest_path
+    echo 'File copied from ' . src_path . ' to ' . dest_path
+    if a:headless == 1
+      q
+    endif
+  else
+    echo 'Error: Source file not found or not readable: ' . src_path
+  endif
+endfunction
+
+function NERDTreeSetupCustomActions()
+  if exists("g:loaded_my_nerdtree_actions")
+  else
+    let g:loaded_my_nerdtree_actions = 1
+    call g:NERDTreeAddMenuItem({'text': 'copy path to clip(b)oard', 'shortcut': 'b', 'callback': 'NERDTreeClipPathDir'})
+    call g:NERDTreeAddMenuItem({'text': '(C)opy file to yanked path', 'shortcut': 'C', 'callback': 'NERDTreeCopyToYankedPathNotHeadless'})
+    call g:NERDTreeAddMenuItem({'text': 'copy file to yanked path (H)eadless', 'shortcut': 'H', 'callback': 'NERDTreeCopyToYankedPathHeadless'})
+  endif
+  NERDTreeToggle
+endfunction
+
+
+nmap <Space>T :<C-U>call NERDTreeSetupCustomActions()<CR>
+
+function! NERDTreeCommander()
+  tabnew
+  let winSize = winwidth(0)
+  NERDTree
+  let currNerdTreeBufN = bufnr('%')
+  tabnew
+  NERDTree
+  :exe "normal \<c-w>\<c-w>"
+  :exe "b ".currNerdTreeBufN
+  :exe "vertical resize ".(winSize / 2)
+  tabprev
+  tabc
+
+endfunction
+
+" END NERDTree EXTENSIONS
 
 lua << EOF
 require("icon-picker").setup({ disable_legacy_commands = true })
@@ -621,3 +709,10 @@ EOF
 
 " set modifiable
 "
+"
+
+lua require("telescope").load_extension "file_browser"
+
+lua require("nvim-tree").setup()
+
+
