@@ -8,18 +8,27 @@ local def_out_opacity = 0.9
 local opacity_step = 0.05
 
 local opacity_out_map_by_class = {}
-opacity_out_map_by_class['Brave-browser'] = 0.6
-opacity_out_map_by_class['Gnome-terminal'] = 0.7
 
 local opacity_in_map_by_class = {}
-opacity_in_map_by_class['Brave-browser'] = 0.95
-opacity_in_map_by_class['Gnome-terminal'] = 0.85
 
-
-function M.init_opacity_manager()
-    --{{{ Setup transparency composer
+function M.init_opacity_manager(options)
     io.popen "xcompmgr -c -C -t-5 -l-5 -r4.2 -o.55 &"
-    --}}}
+
+    if options ~= nil and type(options) == "table" then
+        if options.opacity_step ~= nil then opacity_step = options.opacity_step end
+        if options.def_in_opacity ~= nil then def_in_opacity = options.def_in_opacity end
+        if options.def_out_opacity ~= nil then def_out_opacity = options.def_out_opacity end
+        if options.opacity_in_by_class ~= nil and type(options.opacity_in_by_class) == "table" then
+            for class_, opacity in pairs(options.opacity_in_by_class) do
+                opacity_in_map_by_class[class_] = opacity
+            end
+        end
+        if options.opacity_out_by_class ~= nil and type(options.opacity_out_by_class) == "table" then
+            for class_, opacity in pairs(options.opacity_out_by_class) do
+                opacity_out_map_by_class[class_] = opacity
+            end
+        end
+    end
 end
 
 local function normalize_opacity(opacity)

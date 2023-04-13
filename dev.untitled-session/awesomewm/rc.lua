@@ -29,7 +29,19 @@ local l_display = require "modules/display"
 
 math.randomseed(os.time())
 
-l_opacity.init_opacity_manager()
+local opacity_options = {
+        opacity_step = 0.03,
+        def_in_opacity = 1,
+        def_out_opacity = 0.85,
+        opacity_in_by_class = {},
+        opacity_out_by_class = {}
+}
+opacity_options.opacity_in_by_class["Brave-browser"] = 0.95
+opacity_options.opacity_in_by_class["Gnome-terminal"] = 0.85
+opacity_options.opacity_out_by_class["Brave-browser"] = 0.6
+opacity_options.opacity_out_by_class["Gnome-terminal"] = 0.7
+l_opacity.init_opacity_manager(opacity_options)
+
 l_display.suppress_display_offline()
 
 
