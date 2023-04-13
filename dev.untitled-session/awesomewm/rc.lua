@@ -38,12 +38,16 @@ local opacity_options = {
 }
 opacity_options.opacity_in_by_class["Brave-browser"] = 0.95
 opacity_options.opacity_in_by_class["Gnome-terminal"] = 0.85
-opacity_options.opacity_out_by_class["Brave-browser"] = 0.6
+opacity_options.opacity_out_by_class["Brave-browser"] = 0.8
 opacity_options.opacity_out_by_class["Gnome-terminal"] = 0.7
 l_opacity.init_opacity_manager(opacity_options)
 
 l_display.suppress_display_offline()
 
+
+-- {{{ config modules
+local wallpaper_cfg = require("wallpaper")
+-- }}}
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -260,42 +264,14 @@ local tasklist_buttons = gears.table.join(
                                               awful.client.focus.byidx(-1)
                                           end))
 
-local function get_wallpaper(s)
-    local dir = "~/Downloads/wallpapers"
-    local files = l_misc.scandir(dir)
-    -- naughty.notify({text = (string.format('files len: %s', #files))})
-    if #files > 0 then
-        return l_misc.expanduser(dir.."/"..files[math.random(1, #files)])
-    end
-    return ""
-end
-
-local function set_wallpaper(s)
-    -- Wallpaper
-    if beautiful.wallpaper then
-        local wallpaper = get_wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        if wallpaper ~= "" then
-
-            -- naughty.notify({text = ('setting wallpaper: '..wallpaper)})
-            gears.wallpaper.maximized(wallpaper, s, true)
-
-        end
-    end
-end
-
--- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
+wallpaper_cfg.init_wallpaper(screen)
 
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
-    set_wallpaper(s)
+    wallpaper_cfg.set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    awful.tag({ "1.vim", "2.browser", "3.meet", "4", "5.tg", "6.sig", "7.vb", "8", "9.TMP" }, s, awful.layout.layouts[1])
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
