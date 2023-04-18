@@ -78,6 +78,26 @@ end
 -- Themes define colours, icons, font and wallpapers.
 -- beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 beautiful.init(gears.filesystem.get_configuration_dir() .. "mytheme.lua")
+local nice = require "nice"
+nice({
+    titlebar_color = "#00ff00",
+    titlebar_height = 20,
+    titlebar_font = "Sans 10",
+    
+    -- You only need to pass the parameter you are changing
+    context_menu_theme = {
+        width = 300,
+    },
+    
+    -- Swap the designated buttons for resizing, and opening the context menu
+    mb_resize = nice.MB_MIDDLE,
+    mb_contextmenu = nice.MB_RIGHT,
+    titlebar_items = {
+        left = {"close", "minimize", "maximize"},
+        middle = "title",
+        right = {"sticky", "ontop", "floating"},
+    },
+})
 
 -- my custom widgets
 local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")

@@ -7,3 +7,6 @@
 [submodule "dev.untitled-session/awesomewm/keyboard_layout"]
 	path = dev.untitled-session/awesomewm/keyboard_layout
 	url = https://github.com/echuraev/keyboard_layout
+[submodule "dev.untitled-session/awesomewm/nice"]
+	path = dev.untitled-session/awesomewm/nice
+	url = https://github.com/mut-ex/awesome-wm-nice.git

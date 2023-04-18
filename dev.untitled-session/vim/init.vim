@@ -375,7 +375,7 @@ Plug 'tyru/open-browser.vim'
 Plug 'aklt/plantuml-syntax'
 Plug 'skanehira/preview-uml.vim'
 Plug 'weirongxu/plantuml-previewer.vim' " previewer
-Plug 'scrooloose/vim-slumlord' " console preview
+" Plug 'scrooloose/vim-slumlord' " console preview
 
 " d2
 Plug 'terrastruct/d2-vim'
