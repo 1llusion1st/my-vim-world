@@ -1,3 +1,5 @@
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 install-tools:
 	apt install -y tmux zsh mosh git wget curl jq elinks htop
 
@@ -36,3 +38,8 @@ tools-build:
 
 tool-vpn-up:
 	sudo dev/tools/vpn/main dev/vpns
+
+start-macos-lazy:
+	echo ${ROOT_DIR}
+	XDG_CONFIG_HOME=$(ROOT_DIR)/vim.macos.lazy XDG_DATA_HOME=$(ROOT_DIR)/vim.macos.lazy nvim
+
