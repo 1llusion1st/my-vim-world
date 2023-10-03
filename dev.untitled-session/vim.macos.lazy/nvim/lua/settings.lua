@@ -44,6 +44,16 @@ opt.termguicolors = true
 g.loaded_netrw = 1
 g.loaded_netrwPlugin = 1
 
+-- nvim-tree
+
+-- pass to setup along with your other options
+local my_nvim_settings = require("nvim_tree")
+require("nvim-tree").setup {
+  ---
+  on_attach = my_nvim_settings.my_on_attach,
+  ---
+}
+
 -- tmux navigator
 g.tmux_navigator_no_mappings = 1
 g.tmux_navigator_save_on_switch = 2

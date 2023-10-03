@@ -23,8 +23,10 @@ map('', '<space>B', ':lua require("buffer_manager.ui").toggle_quick_menu()<CR>',
 map('', '<space>R', ':tabp<CR>', default_opts)
 map('', '<space>N', ':tabn<CR>', default_opts)
 
--- nerdtree
-map('', '<space>t', ':<C-U>NERDTree<CR>', default_opts)
+-- nerdtree/nvimtree
+-- map('', '<space>t', ':<C-U>NERDTree<CR>', default_opts)
+map('', '<space>t', ':<C-U>NvimTreeOpen<CR>', default_opts)
+map('', '<space>tt', ':<C-U>NvimTreeFindFile<CR>', default_opts)
 
 -- tmux navigation
 map('', '{Left-Mapping}', ':<C-U>TmuxNavigateLeft<CR>', default_opts)
