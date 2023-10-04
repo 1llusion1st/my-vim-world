@@ -54,13 +54,57 @@ return {
   { 'williamboman/nvim-lsp-installer' },
 
   -- lsp autocomplete
-  { 'hrsh7th/nvim-cmp' },
-  { 'hrsh7th/cmp-nvim-lsp' },
-  { 'hrsh7th/cmp-buffer' },
-  { 'saadparwaiz1/cmp_luasnip' },
+  { 'hrsh7th/nvim-cmp',
+    event = "InsertEnter",
+    dependencies = {
+      "hrsh7th/cmp-buffer", -- source for text in buffer
+      "hrsh7th/cmp-path", -- source for file system paths
+      "L3MON4D3/LuaSnip", -- snippet engine
+      "saadparwaiz1/cmp_luasnip", -- for autocompletion
+      "rafamadriz/friendly-snippets", -- useful snippets
+      "onsails/lspkind.nvim", -- vs-code like pictograms
+    },
+    config = function()
+      local cmp = require("cmp")
+      local luasnip = require("luasnip")
+      local lspkind = require("lspkind")
 
-  -- fs autocomplete
-  { 'hrsh7th/cmp-path' },
+      require("luasnip.loaders.from_vscode").lazy_load()
+      cmp.setup({
+        completion = {
+          -- completeopt = "menu,menuone,preview,noselect",
+          completeopt = "menu,menuone,preview",
+        },
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end
+        },
+        mapping = cmp.mapping.preset.insert({
+          ["<C-k>"] = cmp.mapping.select_prev_item(), -- previous suggestion
+          ["<C-j>"] = cmp.mapping.select_next_item(), -- next suggestion
+          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+          ["<C-f>"] = cmp.mapping.scroll_docs(4),
+          ["<C-Space>"] = cmp.mapping.complete(), -- show completion suggestions
+          ["<C-e>"] = cmp.mapping.abort(), -- close completion window
+          ["<CR>"] = cmp.mapping.confirm({ select = false }),
+        }),
+        sources = cmp.config.sources({
+          { name = "nvim_lsp" },
+          { name = "luasnip" }, -- snippets
+          { name = "buffer" }, -- text within current buffer
+          { name = "path" }, -- file system paths
+        }),
+        formatting = {
+          format = lspkind.cmp_format({
+            maxwidth = 50,
+            ellipsis_char = "...",
+          }),
+        },
+      })
+    end
+  },
+  -- { 'hrsh7th/cmp-nvim-lsp' },
 
   -- git
   { 'tpope/vim-fugitive' },
@@ -68,9 +112,6 @@ return {
 
   -- notifications
   { 'rcarriga/nvim-notify' },
-
-  -- snippets
-  { 'L3MON4D3/LuaSnip' },
 
   -- telescope
   {
@@ -101,6 +142,14 @@ return {
         s("n", "<space>fo", "<cmd>Telescope oldfiles<CR>", { desc = "fuzzy recent files find" })
         s("n", "<space>ff", "<cmd>Telescope find_files<CR>", { desc = "fuzzy files find" })
       end
+  },
+
+  -- special language libraries
+  -- go
+  { 'fatih/vim-go',
+    config = function()
+        vim.keymap.set("n", "<space>F", "<cmd>GoFillStruct<CR>", { desc = "fill current struct" })
+    end
   },
 
   -- themes

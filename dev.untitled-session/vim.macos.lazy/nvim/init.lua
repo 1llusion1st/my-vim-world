@@ -17,7 +17,10 @@ vim.opt.rtp:prepend(lazypath)
 vim.opt.termguicolors = true
 vim.g.mapleader = " " -- Make sure to set `mapleader` before lazy so your mappings are correct
 
-require("lazy").setup(require("plugins"))
+require("lazy").setup({
+  {import = "plugins"},
+  {import = "plugins.lsp"},
+})
 
 require("settings")
 
