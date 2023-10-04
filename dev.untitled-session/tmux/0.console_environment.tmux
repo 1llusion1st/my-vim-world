@@ -2,3 +2,6 @@
 set -g default-terminal "screen-256color"
 set-window-option automatic-rename off
 set-option set-titles off
+
+unbind-key r
+bind r source-file ~/.tmux.conf
