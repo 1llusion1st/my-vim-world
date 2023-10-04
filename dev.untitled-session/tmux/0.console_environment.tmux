@@ -5,3 +5,8 @@ set-option set-titles off
 
 unbind-key r
 bind r source-file ~/.tmux.conf
+
+bind -r j resize-pane -D 5
+bind -r k resize-pane -U 5
+bind -r l resize-pane -R 5
+bind -r h resize-pane -L 5
