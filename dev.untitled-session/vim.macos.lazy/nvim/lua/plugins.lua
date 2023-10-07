@@ -2,7 +2,7 @@ return {
   "folke/which-key.nvim",
   { "folke/neoconf.nvim", cmd = "Neoconf" },
   "folke/neodev.nvim",
-  { 
+  {
     'javiorfo/nvim-soil',
     lazy = true,
     ft = "plantuml",
@@ -109,6 +109,7 @@ return {
   -- git
   { 'tpope/vim-fugitive' },
   { 'airblade/vim-gitgutter' },
+  { 'junegunn/gv.vim' },
 
   -- notifications
   { 'rcarriga/nvim-notify' },
@@ -150,6 +151,40 @@ return {
     config = function()
         vim.keymap.set("n", "<space>F", "<cmd>GoFillStruct<CR>", { desc = "fill current struct" })
     end
+  },
+
+  -- db explorers
+  {
+    'https://github.com/kndndrj/nvim-dbee',
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+    },
+    build = function()
+      -- Install tries to automatically detect the install method.
+      -- if it fails, try calling it with one of these parameters:
+      --    "curl", "wget", "bitsadmin", "go"
+      require("dbee").install()
+    end,
+    config = function()
+      require("dbee").setup(--[[optional config]])
+    end,
+  },
+  {
+    'kristijanhusak/vim-dadbod-ui',
+    dependencies = {
+      { 'tpope/vim-dadbod', lazy = true },
+      { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true },
+    },
+    cmd = {
+      'DBUI',
+      'DBUIToggle',
+      'DBUIAddConnection',
+      'DBUIFindBuffer',
+    },
+    init = function()
+      -- Your DBUI configuration
+      vim.g.db_ui_use_nerd_fonts = 1
+    end,
   },
 
   -- themes
