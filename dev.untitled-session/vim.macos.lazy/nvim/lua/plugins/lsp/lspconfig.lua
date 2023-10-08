@@ -171,5 +171,11 @@ return {
       capabilities = capabilities,
       on_attach = on_attach,
     })
+
+    -- solidity server
+    lspconfig["solidity"].setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
   end,
 }

@@ -105,6 +105,7 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
           "query",
           "go",
           "sql",
+          "solidity",
         },
         incremental_selection = {
           enable = true,
@@ -248,7 +249,9 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
     'Wansmer/treesj',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
-      require('treesj').setup({--[[ your config ]]})
+      require('treesj').setup({
+        max_join_length = 1024,
+      })
     end,
   },
 

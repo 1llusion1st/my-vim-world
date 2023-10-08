@@ -124,3 +124,10 @@ g.tagbar_sort = 0
 -- open links in browser
 vim.keymap.set( "n", "gx", ":execute '!open ' . shellescape(expand('<cfile>'), 1)<CR>", {})
 
+-- treesj
+require('treesj').setup({
+  max_join_length = 1024,
+})
+vim.keymap.set( "n", "tj", ":TSJToggle<CR>", {})
+vim.keymap.set( "n", "tJ", ":lua require('treesj').toggle({ split = { recursive = true } })<CR>", {})
+

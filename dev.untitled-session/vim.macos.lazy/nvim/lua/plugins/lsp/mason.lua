@@ -39,6 +39,7 @@ return {
         "pyright",
         "gopls",
         "sqlls",
+        "solidity",
       },
       -- auto-install configured servers (with lspconfig)
       automatic_installation = true, -- not the same as ensure_installed
@@ -54,6 +55,7 @@ return {
         "eslint_d", -- js linter
         "gopls",
         "sqlls",
+        "solidity",
       },
     })
   end,
