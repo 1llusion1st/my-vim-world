@@ -2,6 +2,7 @@ return {
   "folke/which-key.nvim",
   { "folke/neoconf.nvim", cmd = "Neoconf" },
   "folke/neodev.nvim",
+
   {
     'javiorfo/nvim-soil',
     lazy = true,
@@ -14,6 +15,16 @@ return {
   {
     "iamcco/markdown-preview.nvim",
     ft = "markdown",
+    config = function ()
+      vim.api.nvim_exec([[
+function OpenMarkdownPreview (url)
+  execute "silent ! firefox --new-window " . a:url
+endfunction
+let g:mkdp_browserfunc = 'OpenMarkdownPreview'
+      ]], true)
+
+      vim.g.mkdp_auto_close = 1
+    end,
     build = function()
       vim.fn["mkdp#util#install"]()
     end,
@@ -49,7 +60,69 @@ return {
     end,
   },
   { 'junegunn/fzf.vim'},
-  { 'nvim-treesitter/nvim-treesitter' },
+  {
+    'nvim-treesitter/nvim-treesitter',
+    event = { "BufReadPre", "BufNewFile" },
+    build = ":TSUpdate",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+      "windwp/nvim-ts-autotag",
+    },
+    config = function()
+      -- import nvim-treesitter plugin
+      local treesitter = require("nvim-treesitter.configs")
+
+      -- configure treesitter
+      treesitter.setup({ -- enable syntax highlighting
+        highlight = {
+          enable = true,
+        },
+        -- enable indentation
+        indent = { enable = true },
+        -- enable autotagging (w/ nvim-ts-autotag plugin)
+        autotag = {
+          enable = true,
+        },
+        -- ensure these language parsers are installed
+        ensure_installed = {
+          "json",
+          "javascript",
+          "typescript",
+          "tsx",
+          "yaml",
+          "html",
+          "css",
+          "prisma",
+          "markdown",
+          "markdown_inline",
+          "svelte",
+          "graphql",
+          "bash",
+          "lua",
+          "vim",
+          "dockerfile",
+          "gitignore",
+          "query",
+          "go",
+          "sql",
+        },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = "<C-space>",
+            node_incremental = "<C-space>",
+            scope_incremental = false,
+            node_decremental = "<bs>",
+          },
+        },
+        -- enable nvim-ts-context-commentstring plugin for commenting tsx and jsx
+        context_commentstring = {
+          enable = true,
+          enable_autocmd = false,
+        },
+      })
+    end,
+  },
   { 'neovim/nvim-lspconfig' },
   { 'williamboman/nvim-lsp-installer' },
 
@@ -147,10 +220,36 @@ return {
 
   -- special language libraries
   -- go
-  { 'fatih/vim-go',
+  -- { 'fatih/vim-go',
+  --  config = function()
+  --      vim.keymap.set("n", "<space>F", "<cmd>GoFillStruct<CR>", { desc = "fill current struct" })
+  --  end
+  --},
+  {
+    'ray-x/go.nvim',
+    dependencies = {  -- optional packages
+      "ray-x/guihua.lua",
+      "neovim/nvim-lspconfig",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function ()
+      require("go").setup()
+    end,
+    event = {"CmdlineEnter"},
+    ft = {"go", 'gomod'},
+    build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+  },
+  {
+    '1llusion1st/nvim-json2gostruct',
+  },
+
+
+  {
+    'Wansmer/treesj',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
-        vim.keymap.set("n", "<space>F", "<cmd>GoFillStruct<CR>", { desc = "fill current struct" })
-    end
+      require('treesj').setup({--[[ your config ]]})
+    end,
   },
 
   -- db explorers

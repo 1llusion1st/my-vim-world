@@ -73,6 +73,45 @@ vim.api.nvim_create_autocmd("FileType", {
 
 require("cmp") -- must have this
 
+-- treejs
+local tsj = require('treesj')
+
+local langs = {--[[ configuration for languages ]]}
+
+tsj.setup({
+  ---@type boolean Use default keymaps (<space>m - toggle, <space>j - join, <space>s - split)
+  use_default_keymaps = true,
+  ---@type boolean Node with syntax error will not be formatted
+  check_syntax_error = true,
+  ---If line after join will be longer than max value,
+  ---@type number If line after join will be longer than max value, node will not be formatted
+  max_join_length = 120,
+  ---Cursor behavior:
+  ---hold - cursor follows the node/place on which it was called
+  ---start - cursor jumps to the first symbol of the node being formatted
+  ---end - cursor jumps to the last symbol of the node being formatted
+  ---@type 'hold'|'start'|'end'
+  cursor_behavior = 'hold',
+  ---@type boolean Notify about possible problems or not
+  notify = true,
+  ---@type boolean Use `dot` for repeat action
+  dot_repeat = true,
+  ---@type nil|function Callback for treesj error handler. func (err_text, level, ...other_text)
+  on_error = nil,
+  ---@type table Presets for languages
+  -- langs = {}, -- See the default presets in lua/treesj/langs
+})
+
+-- Run gofmt + goimport on save
+
+local format_sync_grp = vim.api.nvim_create_augroup("GoImport", {})
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.go",
+  callback = function()
+   require('go.format').goimport()
+  end,
+  group = format_sync_grp,
+})
 
 -- tmux navigator
 g.tmux_navigator_no_mappings = 1
@@ -81,3 +120,7 @@ g.tmux_navigator_save_on_switch = 2
 -- tagbar
 g.tagbar_compact = 1
 g.tagbar_sort = 0
+
+-- open links in browser
+vim.keymap.set( "n", "gx", ":execute '!open ' . shellescape(expand('<cfile>'), 1)<CR>", {})
+
