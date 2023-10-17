@@ -124,6 +124,44 @@ g.tagbar_sort = 0
 -- open links in browser
 vim.keymap.set( "n", "gx", ":execute '!open ' . shellescape(expand('<cfile>'), 1)<CR>", {})
 
+-- lsp_lines
+
+vim.keymap.set( "n", "<space>l", ":lua require('lsp_lines').toggle()<CR>", {})
+
+-- cross
+function Alternative()
+  if vim.bo.filetype == "go" then
+    vim.cmd("GoAlt")
+  else
+  local current_file = vim.fn.expand("%:p")
+  -- Extract the base filename and extension
+  local path, base_filename, extension = current_file:match("(.+)/([^/]+)%.(.+)")
+  if not base_filename or not extension then
+    print("Cannot determine the file extension.")
+    return
+  end
+  local target_file = ""
+  if base_filename:sub(-5) == "_test" then
+    base_filename = base_filename:sub(1, -6)  -- Remove "_test" suffix
+    target_file = base_filename .. "." .. extension
+  else
+    target_file = base_filename .. "_test." .. extension
+  end
+
+  if path ~= "" then
+    target_file = path .. "/" .. target_file
+  end
+  print("target_file: " .. target_file)
+  vim.cmd("edit " .. target_file)
+  end
+end
+
+vim.keymap.set("n", "ga", ":lua Alternative()<CR>", {})
+
+-- go implement
+vim.keymap.set('n', '<space>M', [[<cmd>lua require'telescope'.extensions.goimpl.goimpl{}<CR>]], {noremap=true, silent=true})
+
+
 -- treesj
 require('treesj').setup({
   max_join_length = 1024,
@@ -131,3 +169,4 @@ require('treesj').setup({
 vim.keymap.set( "n", "tj", ":TSJToggle<CR>", {})
 vim.keymap.set( "n", "tJ", ":lua require('treesj').toggle({ split = { recursive = true } })<CR>", {})
 
+vim.cmd(":NvimTreeOpen<CR>")

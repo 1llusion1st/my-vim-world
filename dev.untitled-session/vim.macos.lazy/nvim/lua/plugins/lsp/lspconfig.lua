@@ -164,7 +164,10 @@ return {
     lspconfig["gopls"].setup({
       capabilities = capabilities,
       on_attach = on_attach,
-    })
+      settings = { gopls =  {
+        buildFlags =  {"-tags=integration integration_testnet"}
+      }
+    }})
 
     -- configure sqlls server
     lspconfig["sqlls"].setup({

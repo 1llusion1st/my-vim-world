@@ -45,7 +45,11 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   -- filemanager
   { 'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
-    config = function() require'nvim-tree'.setup {} end, },
+    config = function() require'nvim-tree'.setup {
+      filters = {
+        git_ignored = false,
+      }
+    } end, },
   { 'majutsushi/tagbar'},
   { 'preservim/nerdtree',
     dependencies = {
@@ -106,6 +110,7 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
           "go",
           "sql",
           "solidity",
+          "python",
         },
         incremental_selection = {
           enable = true,
@@ -219,6 +224,32 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
       end
   },
 
+  -- context
+  { "nvim-treesitter/nvim-treesitter-context" },
+  -- {
+  --   'nvimdev/lspsaga.nvim',
+  --   config = function()
+  --       require('lspsaga').setup({})
+  --   end,
+  --   dependencies = {
+  --       'nvim-treesitter/nvim-treesitter',-- optional
+  --       'nvim-tree/nvim-web-devicons'     -- optional
+  --  }
+  -- },
+
+  -- firevim - support for browser extensions
+  {
+    'glacambre/firenvim',
+
+    -- Lazy load firenvim
+    -- Explanation: https://github.com/folke/lazy.nvim/discussions/463#discussioncomment-4819297
+    -- lazy = not vim.g.started_by_firenvim,
+    lazy = false,
+    build = function()
+        vim.fn["firenvim#install"](0)
+    end
+  },
+
   -- special language libraries
   -- go
   -- { 'fatih/vim-go',
@@ -243,6 +274,19 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   {
     '1llusion1st/nvim-json2gostruct',
   },
+  { 'crusj/structrue-go.nvim' },
+  {
+		'edolphin-ydf/goimpl.nvim',
+		dependencies = {
+			{'nvim-lua/plenary.nvim'},
+			{'nvim-lua/popup.nvim'},
+			{'nvim-telescope/telescope.nvim'},
+			{'nvim-treesitter/nvim-treesitter'},
+		},
+		config = function()
+			require'telescope'.load_extension'goimpl'
+		end,
+	},
 
 
   {
@@ -286,6 +330,22 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
     init = function()
       -- Your DBUI configuration
       vim.g.db_ui_use_nerd_fonts = 1
+    end,
+  },
+
+  -- code actions
+  {
+    "aznhe21/actions-preview.nvim",
+    config = function()
+      vim.keymap.set({ "v", "n" }, "gf", require("actions-preview").code_actions)
+    end,
+  },
+
+  -- lsp inline diagnostics
+  {
+    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    config = function()
+      require("lsp_lines").setup()
     end,
   },
 
