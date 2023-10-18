@@ -152,7 +152,7 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
       cmp.setup({
         completion = {
           -- completeopt = "menu,menuone,preview,noselect",
-          completeopt = "menu,menuone,preview",
+          completeopt = "menu,menuone,preview,noselect",
         },
         snippet = {
           expand = function(args)

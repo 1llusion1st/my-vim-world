@@ -165,7 +165,7 @@ return {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = { gopls =  {
-        buildFlags =  {"-tags=integration integration_testnet"}
+        buildFlags =  {"-tags=integration integration_testnet integration_mainnet integration_rmq integration_db fullcycle"}
       }
     }})
 
