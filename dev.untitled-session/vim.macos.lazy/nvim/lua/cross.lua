@@ -63,10 +63,12 @@ vim.keymap.set("n", "ga", ":lua Alternative()<CR>", {})
 
 RunTestFuncTiny = create_crossfile_func({
   go = "GoTestFunc",
+  python = "Pytest file",
 })
 
 RunTestFuncVerbose = create_crossfile_func({
-  go = "GoTestFunc -vF -count=1"
+  go = "GoTestFunc -vF -count=1",
+  python = "Pytest file verbose",
 })
 
 vim.keymap.set("n", "tf", ":lua RunTestFuncTiny()<CR>", {})

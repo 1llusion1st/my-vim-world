@@ -236,6 +236,19 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   --       'nvim-tree/nvim-web-devicons'     -- optional
   --  }
   -- },
+  {
+    "Arekkusuva/jira-nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+    },
+    build = "make build",
+    config = function()
+      require("jira-nvim").setup({
+        host = os.getenv("JIRA_PROJECT"),
+        token_path = os.getenv("JIRA_TOKEN_PATH")
+      })
+    end
+  },
 
   -- firevim - support for browser extensions
   {
@@ -261,7 +274,9 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
     'ray-x/go.nvim',
     dependencies = {  -- optional packages
       "ray-x/guihua.lua",
+      "mfussenegger/nvim-dap",
       "neovim/nvim-lspconfig",
+      "ray-x/lsp_signature.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
     config = function ()
@@ -271,6 +286,67 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
     ft = {"go", 'gomod'},
     build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
   },
+  {
+    "ray-x/lsp_signature.nvim",
+    event = "VeryLazy",
+    opts = {},
+    config = function(_, opts) require'lsp_signature'.setup(opts) end
+  },
+
+  {
+    "mfussenegger/nvim-dap",
+    config = function ()
+
+      local dap = require('dap')
+      dap.configurations.python = {
+        {
+          type = 'python',
+          request = 'launch',
+          name = "Launch file",
+          program = "${file}",
+        },
+      }
+    end
+  },
+
+  {
+    "mfussenegger/nvim-dap-python",
+    dependencies = {
+      "mfussenegger/nvim-dap",
+    },
+    config = function ()
+      local dap = require('dap')
+      dap.configurations.python = {
+        {
+          type = 'python',
+          request = 'launch',
+          name = "Launch file",
+          program = "${file}",
+        },
+      }
+
+      local venv = os.getenv("VIRTUAL_ENV")
+      if venv ~= "" then
+        local python_path = venv.."/bin/python"
+        require('dap-python').setup(python_path)
+      end
+    end
+  },
+
+  {
+    "rcarriga/nvim-dap-ui",
+    config = function ()
+      require("dapui").setup()
+      -- require("nvim-dap-ui").setup({})
+    end
+  },
+  {
+    "theHamsta/nvim-dap-virtual-text",
+    setup = function ()
+        require("nvim-dap-virtual-text").setup()
+    end
+  },
+
   {
     '1llusion1st/nvim-json2gostruct',
   },
@@ -287,6 +363,10 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
 			require'telescope'.load_extension'goimpl'
 		end,
 	},
+
+  {
+    "alfredodeza/pytest.vim",
+  },
 
 
   {
