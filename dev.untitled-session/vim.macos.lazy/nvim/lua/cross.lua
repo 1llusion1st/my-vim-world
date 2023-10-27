@@ -1,8 +1,3 @@
-local cmd = vim.cmd             -- execute Vim commands
-local exec = vim.api.nvim_exec  -- execute Vimscript
-local g = vim.g                 -- global variables
-local opt = vim.opt             -- global/buffer/windows-scoped options
-
 local function create_crossfile_func(handlers)
   return function ()
     local handler = handlers[vim.bo.filetype]

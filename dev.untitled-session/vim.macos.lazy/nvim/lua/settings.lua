@@ -139,4 +139,15 @@ require('treesj').setup({
 vim.keymap.set( "n", "tj", ":TSJToggle<CR>", {})
 vim.keymap.set( "n", "tJ", ":lua require('treesj').toggle({ split = { recursive = true } })<CR>", {})
 
+
+-- MarkdownPreview PlantUML config
+-- https://github.com/iamcco/markdown-preview.nvim/blob/master/app/pages/plantuml.js
+g.mkdp_preview_options = {
+  uml = {
+    server =  'http://localhost:9901',
+    imageFormat = "svg",
+    diagramName = "uml",
+  }
+}
 vim.cmd(":NvimTreeOpen<CR>")
+

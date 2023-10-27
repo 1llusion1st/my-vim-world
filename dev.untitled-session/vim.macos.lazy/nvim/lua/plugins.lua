@@ -1,5 +1,6 @@
 return {
   "folke/which-key.nvim",
+
   { "folke/neoconf.nvim", cmd = "Neoconf" },
   "folke/neodev.nvim",
 
@@ -71,6 +72,7 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
       "windwp/nvim-ts-autotag",
+      "nvim-treesitter/playground",
     },
     config = function()
       -- import nvim-treesitter plugin
@@ -126,6 +128,24 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
           enable = true,
           enable_autocmd = false,
         },
+        playground = {
+          enable = true,
+          disable = {},
+          updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
+          persist_queries = false, -- Whether the query persists across vim sessions
+          keybindings = {
+            toggle_query_editor = 'o',
+            toggle_hl_groups = 'i',
+            toggle_injected_languages = 't',
+            toggle_anonymous_nodes = 'a',
+            toggle_language_display = 'I',
+            focus_language = 'f',
+            unfocus_language = 'F',
+            update = 'R',
+            goto_node = '<cr>',
+            show_help = '?',
+          },
+        }
       })
     end,
   },
@@ -294,6 +314,11 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   },
 
   {
+    "ray-x/guihua.lua",
+    build = 'cd lua/fzy && make'
+  },
+
+  {
     "mfussenegger/nvim-dap",
     config = function ()
 
@@ -326,7 +351,7 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
       }
 
       local venv = os.getenv("VIRTUAL_ENV")
-      if venv ~= "" then
+      if venv ~= nil then
         local python_path = venv.."/bin/python"
         require('dap-python').setup(python_path)
       end
@@ -428,6 +453,49 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
       require("lsp_lines").setup()
     end,
   },
+
+  -- ORG MODE
+  {
+  'nvim-orgmode/orgmode',
+    dependencies = {
+      { 'nvim-treesitter/nvim-treesitter', lazy = true },
+    },
+    event = 'VeryLazy',
+    config = function()
+      -- Load treesitter grammar for org
+      require('orgmode').setup_ts_grammar()
+
+      -- Setup treesitter
+      require('nvim-treesitter.configs').setup({
+        highlight = {
+          enable = true,
+          additional_vim_regex_highlighting = { 'org' },
+        },
+        ensure_installed = { 'org' },
+      })
+
+      -- Setup orgmode
+      require('orgmode').setup({
+        org_agenda_files = '~/orgfiles/**/*',
+        org_default_notes_file = '~/orgfiles/refile.org',
+      })
+    end,
+  },
+  { "dhruvasagar/vim-table-mode" },
+
+  -- EXTERNAL services
+  {
+    'napisani/nvim-github-codesearch',
+    build = 'make',
+    config = function ()
+      local gh = require("nvim-github-codesearch")
+      gh.setup({
+        github_auth_token = "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"
+      })
+      vim.keymap.set("n", "gh", ":lua require('nvim-github-codesearch').prompt()<CR>", {})
+    end
+  },
+
 
   -- themes
   { 'Dave-Elec/gruvbox', priority = 1000 },
