@@ -180,5 +180,18 @@ return {
       capabilities = capabilities,
       on_attach = on_attach,
     })
+
+    -- rust server
+    lspconfig["rust_analyzer"].setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
+
+    -- c/c++
+    lspconfig["clangd"].setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
+
   end,
 }

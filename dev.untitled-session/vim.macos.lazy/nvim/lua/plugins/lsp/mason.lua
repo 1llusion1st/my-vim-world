@@ -40,6 +40,8 @@ return {
         "gopls",
         "sqlls",
         "solidity",
+        "rust_analyzer",
+        "clangd",
       },
       -- auto-install configured servers (with lspconfig)
       automatic_installation = true, -- not the same as ensure_installed
@@ -56,7 +58,15 @@ return {
         "gopls",
         "sqlls",
         "solidity",
+        "rust_analyzer",
+        "rustfmt",
+        "codelldb",
+        "cpptools",
+        "clangd",
+        "cpplint",
+        "clang-format",
       },
     })
   end,
 }
+
