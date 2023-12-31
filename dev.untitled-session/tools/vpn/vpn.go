@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mysteriumnetwork/go-openvpn/openvpn3"
 )
 
 type Vpn struct {
@@ -27,7 +26,6 @@ type Vpn struct {
 		Pid     int
 		Command *exec.Cmd
 		lock    sync.Mutex
-		Session *openvpn3.Session
 	}
 }
 
@@ -44,6 +42,7 @@ func (v *Vpn) GetPassword(ctx context.Context) (string, error) {
 }
 
 func (v *Vpn) Up(ctx context.Context) error {
+	// fmt.Println("activating")
 	v.State.lock.Lock()
 	defer v.State.lock.Unlock()
 	password, err := v.GetPassword(context.Background())
@@ -95,24 +94,6 @@ func (v *Vpn) Up(ctx context.Context) error {
 	// prepare Routes
 
 	return nil
-}
-
-func (v *Vpn) openvpn3_Up(ctx context.Context) error {
-	config := openvpn3.NewConfig(v.OVPNData)
-	v.State.lock.Lock()
-	defer v.State.lock.Unlock()
-	password, err := v.GetPassword(context.Background())
-	if err != nil {
-		return err
-	}
-	user := "user"
-	fmt.Println("trying user:password: ", user, password)
-	v.State.Session = openvpn3.NewSession(config, openvpn3.UserCredentials{
-		Username: user,
-		Password: password,
-	}, &loggingCallbacks{})
-	v.State.Session.Start()
-	return v.State.Session.Wait()
 }
 
 func (v *Vpn) Down(ctx context.Context) error {
