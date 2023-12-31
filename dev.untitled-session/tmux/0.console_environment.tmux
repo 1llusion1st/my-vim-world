@@ -2,6 +2,8 @@
 set -g default-terminal "screen-256color"
 set-window-option automatic-rename off
 set-option set-titles off
+set -g pane-border-status top
+set -g pane-border-format " [ ###P #T ] "
 
 unbind-key r
 bind r source-file ~/.tmux.conf

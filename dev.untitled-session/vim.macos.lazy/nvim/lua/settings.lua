@@ -54,6 +54,8 @@ require("nvim-tree").setup {
   ---
 }
 
+vim.keymap.set("n", "FF", ":NvimTreeFindFile<CR>", {})
+
 -- dadbod
 local autocomplete_group = vim.api.nvim_create_augroup("vimrc_autocompletion", { clear = true })
 local cmp = require("cmp")
@@ -142,6 +144,11 @@ vim.keymap.set( "n", "tJ", ":lua require('treesj').toggle({ split = { recursive 
 
 -- MarkdownPreview PlantUML config
 -- https://github.com/iamcco/markdown-preview.nvim/blob/master/app/pages/plantuml.js
+-- [[
+-- docker run -d -p 8080:8080 plantuml/plantuml-server:jetty
+-- docker run --restart=unless-stopped --name plantuml-server-jetty -d -p 9901:8080 plantuml/plantuml-server:jetty
+
+-- ]] --
 g.mkdp_preview_options = {
   uml = {
     server =  'http://localhost:9901',
@@ -149,5 +156,22 @@ g.mkdp_preview_options = {
     diagramName = "uml",
   }
 }
+
+cmd [[
+autocmd FileType NvimTree,tagbar autocmd BufEnter,TextChanged,InsertLeave <buffer> set nu
+]]
+
 vim.cmd(":NvimTreeOpen<CR>")
+
+vim.keymap.set("n", "<space>tm", ":Telescope make<CR>", {})
+vim.keymap.set("n", "<space>tT", ":Telescope telescope-tabs list_tabs<CR>", {})
+vim.keymap.set("n", "<space>tG", ":Telescope grep_string<CR>", {})
+
+vim.keymap.set('v', '<space>C', ":'<,'>CommentToggle<CR>", {})
+
+-- <C-\><C-n>
+vim.keymap.set('t', 'jj', '<C-\\><C-N>', {})
+
+-- markdown
+
 

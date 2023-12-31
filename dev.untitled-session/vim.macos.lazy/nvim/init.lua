@@ -29,3 +29,10 @@ vim.o.background = "dark" -- or "light" for light mode
 vim.cmd([[colorscheme gruvbox]])
 
 require("keymaps")
+
+-- dev
+require("own.luautils").setup({
+  debug=false
+})
+require("own.markdown").setup({
+})

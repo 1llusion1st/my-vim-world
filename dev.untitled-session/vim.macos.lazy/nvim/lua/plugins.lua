@@ -24,11 +24,17 @@ endfunction
 let g:mkdp_browserfunc = 'OpenMarkdownPreview'
       ]], true)
 
-      vim.g.mkdp_auto_close = 1
+      -- vim.g.mkdp_auto_close = 1
     end,
     build = function()
       vim.fn["mkdp#util#install"]()
     end,
+  },
+  {
+    'jghauser/follow-md-links.nvim',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+    },
   },
 
   -- color schema
@@ -46,11 +52,17 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   -- filemanager
   { 'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
-    config = function() require'nvim-tree'.setup {
-      filters = {
-        git_ignored = false,
-      }
-    } end, },
+    config = function()
+      require'nvim-tree'.setup({
+        view = {
+          adaptive_size = true
+        },
+        filters = {
+          git_ignored = false,
+        }
+      })
+    end,
+  },
   { 'majutsushi/tagbar'},
   { 'preservim/nerdtree',
     dependencies = {
@@ -256,19 +268,19 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   --       'nvim-tree/nvim-web-devicons'     -- optional
   --  }
   -- },
-  {
-    "Arekkusuva/jira-nvim",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-    },
-    build = "make build",
-    config = function()
-      require("jira-nvim").setup({
-        host = os.getenv("JIRA_PROJECT"),
-        token_path = os.getenv("JIRA_TOKEN_PATH")
-      })
-    end
-  },
+  -- {
+  --  "Arekkusuva/jira-nvim",
+  --  dependencies = {
+  --    "nvim-telescope/telescope.nvim",
+  --  },
+  --  build = "make build",
+  --  config = function()
+  --    require("jira-nvim").setup({
+  --      host = os.getenv("JIRA_PROJECT"),
+  --      token_path = os.getenv("JIRA_TOKEN_PATH")
+  --    })
+  --  end
+  --},
 
   -- firevim - support for browser extensions
   {
@@ -280,6 +292,22 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
     lazy = false,
     build = function()
         vim.fn["firenvim#install"](0)
+    end
+  },
+
+  {
+    'mfussenegger/nvim-lint',
+    setup = function()
+      require('lint').linters_by_ft = {
+        markdown = {'vale',},
+        go = {"golangcilint", },
+        golang = {"golangcilint", },
+      }
+      vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+        callback = function()
+          require("lint").try_lint()
+        end,
+      })
     end
   },
 
@@ -455,33 +483,69 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   },
 
   -- ORG MODE
-  {
-  'nvim-orgmode/orgmode',
-    dependencies = {
-      { 'nvim-treesitter/nvim-treesitter', lazy = true },
-    },
-    event = 'VeryLazy',
-    config = function()
-      -- Load treesitter grammar for org
-      require('orgmode').setup_ts_grammar()
+  -- {
+  -- 'nvim-orgmode/orgmode',
+  --   dependencies = {
+  --     { 'nvim-treesitter/nvim-treesitter', lazy = true },
+  --   },
+  --   event = 'VeryLazy',
+  --   config = function()
+  --     -- Load treesitter grammar for org
+  --     require('orgmode').setup_ts_grammar()
 
-      -- Setup treesitter
-      require('nvim-treesitter.configs').setup({
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = { 'org' },
-        },
-        ensure_installed = { 'org' },
-      })
+  --     -- Setup treesitter
+  --     require('nvim-treesitter.configs').setup({
+  --       highlight = {
+  --         enable = true,
+  --         additional_vim_regex_highlighting = { 'org' },
+  --       },
+  --       ensure_installed = { 'org' },
+  --     })
 
-      -- Setup orgmode
-      require('orgmode').setup({
-        org_agenda_files = '~/orgfiles/**/*',
-        org_default_notes_file = '~/orgfiles/refile.org',
-      })
-    end,
-  },
+  --     -- Setup orgmode
+  --     require('orgmode').setup({
+  --       org_agenda_files = '~/orgfiles/**/*',
+  --       org_default_notes_file = '~/orgfiles/refile.org',
+  --     })
+  --   end,
+  -- },
   { "dhruvasagar/vim-table-mode" },
+
+  {'akinsho/toggleterm.nvim', version = "*", opts = {--[[ things you want to change go here]]}},
+
+  {
+    "sopa0/telescope-makefile",
+    dependencies = {
+      "akinsho/toggleterm.nvim",
+      'nvim-telescope/telescope.nvim'
+    },
+    config = function()
+      require'telescope'.load_extension('make')
+    end
+  },
+
+  {
+    'LukasPietzschmann/telescope-tabs',
+    dependencies = {
+      'nvim-telescope/telescope.nvim'
+    },
+    config = function ()
+      require'telescope-tabs'.setup{
+        -- Your custom config :^)
+      }
+    end
+  },
+
+  {
+    'terrortylor/nvim-comment',
+    config = function ()
+      require('nvim_comment').setup({
+        comment_empty = false
+      })
+    end
+  },
+
+  { "typicode/bg.nvim", lazy = false },
 
   -- EXTERNAL services
   {

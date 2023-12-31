@@ -1,0 +1,17 @@
+{
+    "workspace.maxPreload": 10000,
+    "diagnostics.globals": [
+        "vim",
+        "lfs",
+        "ngx"
+    ],
+    "workspace.library": [
+        "${3rd}/lfs/library",
+        "${3rd}/luv/library",
+        "${3rd}/bee/library",
+        "${3rd}/OpenResty/library",
+        "${3rd}/luassert/library"
+    ],
+    "runtime.version": "LuaJIT",
+    "workspace.checkThirdParty": false
+}
