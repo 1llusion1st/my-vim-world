@@ -17,7 +17,8 @@ map('n', '<S-Space>', '<PageUp> zz', default_opts)
 -- buffers
 map('', '<space>b', ':bp<CR>', default_opts)
 map('', '<space>p', ':bnext<CR>', default_opts)
-map('', '<space>B', ':lua require("buffer_manager.ui").toggle_quick_menu()<CR>', default_opts)
+-- map('', '<space>B', ':lua require("buffer_manager.ui").toggle_quick_menu()<CR>', default_opts)
+map('', '<space>B', ':lua Telescope buffers<CR>', default_opts)
 
 -- tabs
 map('', '<space>R', ':tabp<CR>', default_opts)
@@ -46,3 +47,6 @@ map('', '<space>T', ':<C-U>TagbarToggle<CR>', default_opts)
 
 -- fzf
 map('n', '<space>f', ':<C-U>FZF<CR>', default_opts)
+
+-- go
+map('', '<space>L', ':<C-U>GoLint<CR>', default_opts)

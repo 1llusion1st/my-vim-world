@@ -4,9 +4,13 @@ _alert() {
     osascript -e "display notification \"$arg\" with title \"console\""
 }
 
-test -f /tmp/yabai.sa || echo $(sudo yabai --load-sa && touch /tmp/yabai.sa)
+if [[ "$(uname)" = "Linux" ]]; then
+    echo ;
+else
+    test -f /tmp/yabai.sa || echo $(sudo yabai --load-sa && touch /tmp/yabai.sa);
+    alias alert='_alert'
+fi
 
-alias alert='_alert'
 
 _ussh() {
     ssh -o UserKnownHostsFile=/dev/null -o "StrictHostKeyChecking=no" $@

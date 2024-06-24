@@ -8,6 +8,14 @@ return {
     -- import mason
     local mason = require("mason")
 
+    local lsp_zero = require('lsp-zero')
+
+    lsp_zero.on_attach(function(client, bufnr)
+      -- see :help lsp-zero-keybindings
+      -- to learn the available actions
+      lsp_zero.default_keymaps({buffer = bufnr})
+    end)
+
     -- import mason-lspconfig
     local mason_lspconfig = require("mason-lspconfig")
 
@@ -42,9 +50,21 @@ return {
         "solidity",
         "rust_analyzer",
         "clangd",
+        -- "nimls",
       },
       -- auto-install configured servers (with lspconfig)
-      automatic_installation = true, -- not the same as ensure_installed
+      automatic_installation = false, -- not the same as ensure_installed
+      handlers = {
+        lsp_zero.default_setup,
+        -- nimls = function()
+        --   require('lspconfig').nimls.setup({
+        --     ---
+        --     -- in here you can add your own
+        --     -- custom configuration
+        --     ---
+        --   })
+        -- end,
+      },
     })
 
     mason_tool_installer.setup({
@@ -63,8 +83,9 @@ return {
         "codelldb",
         "cpptools",
         "clangd",
-        "cpplint",
-        "clang-format",
+        -- "cpplint",
+        -- "clang-format",
+        -- "nimls",
       },
     })
   end,

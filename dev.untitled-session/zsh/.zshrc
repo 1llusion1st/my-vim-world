@@ -9,7 +9,11 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/andrew/.oh-my-zsh"
+if [[ "$(uname)" = "Linux" ]]; then
+    export ZSH="/home/andrew/.oh-my-zsh"
+else
+    export ZSH="/Users/andrew/.oh-my-zsh"
+fi
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -110,8 +114,12 @@ export PATH=/usr/local/texlive/2021basic/bin/universal-darwin/:/usr/local/gcc-10
 
 export ZSHCUSTOM_DIR=/Volumes/untitled/zsh-custom
 
-
-alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
+# Path to your oh-my-zsh installation.
+if [[ "$(uname)" = "Linux" ]]; then
+    ;
+else
+    alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl';
+fi
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -123,6 +131,7 @@ run_nvim() {
 	echo running nvim
 	export XDG_CONFIG_HOME=~/work/my-vim-world/dev.untitled-session/vim.macos.lazy
 	export XDG_DATA_HOME=~/work/my-vim-world/dev.untitled-session/vim.macos.lazy
+    export OPENAI_FILE=~/work/my-vim-world/dev.untitled-session/etc/openai.com/api.key
 	nvim $@
 }
 alias nvim='run_nvim'
@@ -137,4 +146,12 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 source ~/work/my-vim-world/dev.untitled-session/zsh/0.base.zsh
 
 # Created by `userpath` on 2023-12-07 16:49:54
-export PATH="$PATH:/Users/andrew/.local/bin"
+if [[ "$(uname)" = "Linux" ]]; then
+    ;
+else
+    export PATH="$PATH:/Users/andrew/.local/bin"
+fi
+
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
+
+alias gs="git status"

@@ -5,7 +5,7 @@ local gears = require("gears")
 local naughty = require("naughty")
 local beautiful = require("beautiful")
 
-local l_misc = require "modules/misc"
+local l_misc = custom_require "modules/misc"
 
 local function get_wallpaper(s)
     local dir = "~/Downloads/wallpapers"

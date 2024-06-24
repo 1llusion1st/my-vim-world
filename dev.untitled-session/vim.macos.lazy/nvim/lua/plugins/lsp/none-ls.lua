@@ -21,6 +21,7 @@ return {
         "eslint_d", -- js linter
         "rustfmt",
         "gopls",
+        "clangd",
       },
     })
 

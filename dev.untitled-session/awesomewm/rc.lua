@@ -19,13 +19,41 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 require("awful.hotkeys_popup.keys")
 
 -- Load Debian menu entries
-local debian = require("debian.menu")
+-- local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
 -- local libs
-local l_misc = require "modules/misc"
-local l_opacity = require "modules/opacity"
-local l_display = require "modules/display"
+function log(text)
+    naughty.notify({ preset = naughty.config.presets.critical,
+                     title = "Oops, there were errors during startup!",
+                     text = text })
+end
+
+function script_path()
+   local path = debug.getinfo(2, "S").source:sub(2)
+   local orig_path = io.popen('readlink "' .. path .. '"'):read()
+   local dir_path = orig_path:match("(.*/)") 
+   return dir_path
+end
+
+package.path = package.path .. ';' .. script_path() .. ';' .. script_path() .. "modules"
+
+function custom_require(modpath, replace_dots)
+  local has, mod = pcall(require, modpath)
+  if has == true then return mod end
+
+  if replace_dots == true then
+    modpath = modpath:gsub("%.", "/")
+    -- log("mod file: " .. modpath)
+  end
+
+  mod = loadfile(script_path()..modpath ..'.lua')
+  return mod()
+end
+
+local l_misc = custom_require "modules/misc"
+local l_opacity = custom_require "modules/opacity"
+local l_display = custom_require "modules/display"
 
 math.randomseed(os.time())
 
@@ -46,7 +74,7 @@ l_display.suppress_display_offline()
 
 
 -- {{{ config modules
-local wallpaper_cfg = require("wallpaper")
+local wallpaper_cfg = custom_require("wallpaper")
 -- }}}
 
 -- {{{ Error handling
@@ -78,82 +106,87 @@ end
 -- Themes define colours, icons, font and wallpapers.
 -- beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 beautiful.init(gears.filesystem.get_configuration_dir() .. "mytheme.lua")
-local nice = require "nice"
-nice({
-    titlebar_color = "#00ff00",
-    titlebar_height = 20,
-    titlebar_font = "Sans 10",
-    
-    -- You only need to pass the parameter you are changing
-    context_menu_theme = {
-        width = 300,
-    },
-    
-    -- Swap the designated buttons for resizing, and opening the context menu
-    mb_resize = nice.MB_MIDDLE,
-    mb_contextmenu = nice.MB_RIGHT,
-    titlebar_items = {
-        left = {"close", "minimize", "maximize"},
-        middle = "title",
-        right = {"sticky", "ontop", "floating"},
-    },
-})
+local has_nice, nice = pcall(custom_require, "nice")
+if has_nice == true then
+  nice({
+      titlebar_color = "#00ff00",
+      titlebar_height = 20,
+      titlebar_font = "Sans 10",
+      
+      -- You only need to pass the parameter you are changing
+      context_menu_theme = {
+          width = 300,
+      },
+      
+      -- Swap the designated buttons for resizing, and opening the context menu
+      mb_resize = nice.MB_MIDDLE,
+      mb_contextmenu = nice.MB_RIGHT,
+      titlebar_items = {
+          left = {"close", "minimize", "maximize"},
+          middle = "title",
+          right = {"sticky", "ontop", "floating"},
+      },
+  })
+end
+
+local old_require = require
+-- require = function(path) return custom_require(path, true) end
 
 -- my custom widgets
-local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")
-local batteryarc_widget = require("awesome-wm-widgets.batteryarc-widget.batteryarc")
-local docker_widget = require("awesome-wm-widgets.docker-widget.docker")
-local net_speed_widget = require("awesome-wm-widgets.net-speed-widget.net-speed")
-local ram_widget = require("awesome-wm-widgets.ram-widget.ram-widget")
-local cpu_widget = require("awesome-wm-widgets.cpu-widget.cpu-widget")
-local brightness_widget = require("awesome-wm-widgets.brightness-widget.brightness")
-local net_widgets = require("net_widgets")
+local calendar_widget = custom_require("awesome-wm-widgets.calendar-widget.calendar", true)
+local batteryarc_widget = custom_require("awesome-wm-widgets.batteryarc-widget.batteryarc", true)
+local docker_widget = custom_require("awesome-wm-widgets.docker-widget.docker", true)
+local net_speed_widget = custom_require("awesome-wm-widgets.net-speed-widget.net-speed", true)
+local ram_widget = custom_require("awesome-wm-widgets.ram-widget.ram-widget", true)
+local cpu_widget = custom_require("awesome-wm-widgets.cpu-widget.cpu-widget", true)
+local brightness_widget = custom_require("awesome-wm-widgets.brightness-widget.brightness", true)
+-- local net_widgets = custom_require("net_widgets")
 -- local connman = require("connman_widget")
 -- connman.gui_client = "wicd"
 
 -- volume widget
-local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
+-- local volume_widget = custom_require('awesome-wm-widgets.volume-widget.volume', true)
 
 
 -- keyboard layout widget
-local keyboard_layout = require("keyboard_layout")
-local kbdcfg = keyboard_layout.kbdcfg({type = "tui"})
+-- local keyboard_layout = require("keyboard_layout")
+-- local kbdcfg = keyboard_layout.kbdcfg({type = "tui"})
 
-kbdcfg.add_primary_layout("English", "🇺🇸 US", "us")
-kbdcfg.add_primary_layout("Ukrainian", "🇺🇦 UA", "ua")
-kbdcfg.add_primary_layout("оркостанський", "💩 орк", "ru")
+-- kbdcfg.add_primary_layout("English", "🇺🇸 US", "us")
+-- kbdcfg.add_primary_layout("Ukrainian", "🇺🇦 UA", "ua")
+-- kbdcfg.add_primary_layout("оркостанський", "💩 орк", "ru")
 
 -- kbdcfg.add_primary_layout("English", beautiful.en_layout, "us")
 -- kbdcfg.add_primary_layout("оркостанський", beautiful.ru_layout, "ru")
 -- kbdcfg.add_primary_layout("Ukrainian", beautiful.ua_layout, "ua")
 
-kbdcfg.bind()
+-- kbdcfg.bind()
 
-kbdcfg.widget:buttons(
- awful.util.table.join(awful.button({ }, 1, function () kbdcfg.switch_next() end),
-                       awful.button({ }, 3, function () kbdcfg.menu:toggle() end))
-)
+-- kbdcfg.widget:buttons(
+--  awful.util.table.join(awful.button({ }, 1, function () kbdcfg.switch_next() end),
+--                        awful.button({ }, 3, function () kbdcfg.menu:toggle() end))
+-- )
 -- END
 --
 
 -- MICROPHONE widget
-local widgets = {
-    mic = require("widgets/mic"),
-    coingecko = require("widgets/coingecko")
-}
-local theme_mic = widgets.mic({
-    timeout = 10,
-    settings = function(self)
-        if self.state == "muted" then
-            self.widget:set_image(theme_mic.widget_micMuted)
-        else
-            self.widget:set_image(theme_mic.widget_micUnmuted)
-        end
-    end
-})
-local widget_mic = wibox.widget { theme_mic.widget, layout = wibox.layout.align.horizontal }
+-- [[[ local widgets = {
+--    mic = require("widgets/mic"),
+--    coingecko = require("widgets/coingecko")
+-- }
+-- local theme_mic = widgets.mic({
+--     timeout = 10,
+--     settings = function(self)
+--         if self.state == "muted" then
+--             self.widget:set_image(theme_mic.widget_micMuted)
+--         else
+--             self.widget:set_image(theme_mic.widget_micUnmuted)
+--         end
+--     end
+-- })
+-- local widget_mic = wibox.widget { theme_mic.widget, layout = wibox.layout.align.horizontal }
 
-net_wireless = net_widgets.wireless({interface="wlp1s0"})
+-- net_wireless = net_widgets.wireless({interface="wlp1s0"})
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
@@ -210,7 +243,7 @@ else
     mymainmenu = awful.menu({
         items = {
                   menu_awesome,
-                  { "Debian", debian.menu.Debian_menu.Debian },
+                  -- { "Debian", debian.menu.Debian_menu.Debian },
                   menu_terminal,
                 }
     })
@@ -340,26 +373,26 @@ awful.screen.connect_for_each_screen(function(s)
             -- mykeyboardlayout,
             widget_mic,
             wibox.widget.systray(),
-            volume_widget{
-                widget_type = 'arc',
-                step = 10
-            },
-            net_wireless,
+            -- volume_widget{
+            --     widget_type = 'arc',
+            --     step = 10
+            -- },
+            -- net_wireless,
             wibox.widget.textbox('  |  '),
-            widgets.coingecko({
-                    coins={"kyrrex", "bitcoin", "ethereum", "fantom", "inery", "qmall"},
-                    shorts={
-                        kyrrex="krrx",
-                        bitcoin="btc",
-                        ethereum="eth",
-                        fantom="ftm",
-                        inery="inr",
-                        qmall="qml",
-                    },
-                    coins_to_show=6,
-                }),
+            -- widgets.coingecko({
+            --         coins={"kyrrex", "bitcoin", "ethereum", "fantom", "inery", "qmall"},
+            --         shorts={
+            --             kyrrex="krrx",
+            --             bitcoin="btc",
+            --             ethereum="eth",
+            --             fantom="ftm",
+            --             inery="inr",
+            --             qmall="qml",
+            --         },
+            --         coins_to_show=6,
+            --     }),
             -- connman,
-            kbdcfg.widget,
+            -- kbdcfg.widget,
             cpu_widget({
                 width = 70,
                 step_width = 2,
@@ -395,7 +428,7 @@ root.buttons(gears.table.join(
 --{{{ Client handling
 
 -- opacity
-l_opacity.setup_opacity(client)
+-- l_opacity.setup_opacity(client)
 --}}}
 
 -- {{{ Key bindings
@@ -404,7 +437,7 @@ globalkeys = gears.table.join(
         function ()
             local c = client.focus
             if c then
-                l_opacity.decrease_opacity(c)
+                -- l_opacity.decrease_opacity(c)
             end
         end,
         {description ="decrease client opacity", group="client-opacity"}
@@ -413,7 +446,7 @@ globalkeys = gears.table.join(
         function ()
             local c = client.focus
             if c then
-                l_opacity.increase_opacity(c)
+                -- l_opacity.increase_opacity(c)
             end
         end,
         {description ="increase client opacity", group="client-opacity"}
