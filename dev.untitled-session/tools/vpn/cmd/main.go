@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 	"tools/vpn"
 
+	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -29,28 +31,47 @@ func main() {
 
 func initialModel(vpns *vpn.VPNsConfig) model {
 	return model{
+		timer:  timer.NewWithInterval(999999999*time.Second, 100*time.Millisecond),
 		vpns:   vpns,
 		index:  0,
-		active: make(map[int]bool),
+		status: make(map[int]string),
 	}
 }
 
 type model struct {
 	vpns   *vpn.VPNsConfig
 	index  int
-	active map[int]bool
+	status map[int]string
+	timer  timer.Model
 }
 
 // Init is the first function that will be called. It returns an optional
 // initial command. To not perform an initial command return nil.
 func (m model) Init() tea.Cmd {
-	return nil
+	m.timer.Timeout = time.Second
+
+	return m.timer.Init()
 }
 
 // Update is called when a message is received. Use it to inspect messages
 // and, in response, update the model and/or send a command.
 func (m model) Update(msg_ tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg_.(type) {
+	case timer.StartStopMsg:
+		var cmd tea.Cmd
+		m.timer, cmd = m.timer.Update(msg)
+		return m, cmd
+	case timer.TimeoutMsg:
+		m.timer, _ = m.timer.Update(msg)
+
+		return m, m.timer.Start()
+	case timer.TickMsg:
+		var cmd tea.Cmd
+		m.timer, cmd = m.timer.Update(msg)
+
+		m = m.UpdateStatuses()
+
+		return m, cmd
 	case tea.KeyMsg:
 		{
 			switch msg.String() {
@@ -62,7 +83,6 @@ func (m model) Update(msg_ tea.Msg) (tea.Model, tea.Cmd) {
 						}
 					}
 					return m, tea.Quit
-					break
 				}
 			case "up", "k":
 				{
@@ -80,16 +100,26 @@ func (m model) Update(msg_ tea.Msg) (tea.Model, tea.Cmd) {
 				{
 					if m.vpns.VPNs[m.index].Active() {
 						m.vpns.VPNs[m.index].Down(context.Background())
-						m.active[m.index] = false
 					} else {
 						m.vpns.VPNs[m.index].Up(context.Background())
-						m.active[m.index] = true
+						go m.vpns.VPNs[m.index].HandleRestart(context.Background())
 					}
+
+					m.status[m.index] = m.vpns.VPNs[m.index].GetSym()
 				}
 			}
 		}
 	}
+
 	return m, nil
+}
+
+func (m model) UpdateStatuses() model {
+	for i := range m.status {
+		m.status[i] = m.vpns.VPNs[i].GetSym()
+	}
+
+	return m
 }
 
 // View renders the program's UI, which is just a string. The view is
@@ -98,17 +128,13 @@ func (m model) View() string {
 	lines := make([]string, 0)
 	lines = append(lines, "VPNS:")
 	for i, vpn := range m.vpns.VPNs {
-		line := " ["
 		current := m.index == i
+		prefix := " "
 		if current {
-			line = ">["
+			prefix = ">"
 		}
-		active := vpn.Active()
-		if active {
-			line = line + "+] "
-		} else {
-			line = line + " ]"
-		}
+
+		line := fmt.Sprintf("%s %s ", prefix, vpn.GetSym())
 
 		line = line + vpn.Name
 		lines = append(lines, line)
