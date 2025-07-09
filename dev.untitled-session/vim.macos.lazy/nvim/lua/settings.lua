@@ -162,7 +162,6 @@ cmd [[
 autocmd FileType NvimTree,tagbar autocmd BufEnter,TextChanged,InsertLeave <buffer> set nu
 ]]
 
-vim.cmd(":NvimTreeOpen<CR>")
 
 vim.keymap.set("n", "<space>tm", ":Telescope make<CR>", {})
 vim.keymap.set("n", "<space>tT", ":Telescope telescope-tabs list_tabs<CR>", {})

@@ -50,3 +50,4 @@ map('n', '<space>f', ':<C-U>FZF<CR>', default_opts)
 
 -- go
 map('', '<space>L', ':<C-U>GoLint<CR>', default_opts)
+

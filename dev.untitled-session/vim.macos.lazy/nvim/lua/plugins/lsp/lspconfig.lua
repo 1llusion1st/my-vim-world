@@ -175,11 +175,11 @@ return {
       on_attach = on_attach,
     })
 
-    -- solidity server
-    lspconfig["solidity"].setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-    })
+    -- -- solidity server
+    -- lspconfig["solidity"].setup({
+    --   capabilities = capabilities,
+    --   on_attach = on_attach,
+    -- })
 
     -- rust server
     lspconfig["rust_analyzer"].setup({

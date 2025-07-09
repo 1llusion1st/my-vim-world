@@ -42,7 +42,7 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   { 'nvim-lualine/lualine.nvim',
     requires = {'kyazdani42/nvim-web-devicons', opt = true},
     config = function()
-        require('lualine').setup()
+        require('lualine').setup({})
     end, },
   {'akinsho/bufferline.nvim', requires = 'kyazdani42/nvim-web-devicons',
     config = function()
@@ -63,14 +63,24 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
       })
     end,
   },
-  { 'majutsushi/tagbar'},
   { 'preservim/nerdtree',
     dependencies = {
       'Xuyuanp/nerdtree-git-plugin',
       'ryanoasis/vim-devicons'}
   },
+  {
+  "cuducos/yaml.nvim",
+    ft = { "yaml" }, -- optional
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "folke/snacks.nvim", -- optional
+      "nvim-telescope/telescope.nvim", -- optional
+      "ibhagwan/fzf-lua" -- optional
+    },
+  },
+
   { 'christoomey/vim-tmux-navigator' },
-  { 'majutsushi/tagbar' },
+  { 'preservim/tagbar' },
   { 'junegunn/fzf',
     build = function()
       vim.fn["mkdp#util#install"]()
@@ -88,21 +98,16 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
       "nvim-treesitter/playground",
     },
     config = function()
-      -- import nvim-treesitter plugin
       local treesitter = require("nvim-treesitter.configs")
 
-      -- configure treesitter
-      treesitter.setup({ -- enable syntax highlighting
+      treesitter.setup({
         highlight = {
-          enable = true,
+          enable = true
         },
-        -- enable indentation
         indent = { enable = true },
-        -- enable autotagging (w/ nvim-ts-autotag plugin)
         autotag = {
-          enable = true,
+          enable = true
         },
-        -- ensure these language parsers are installed
         ensure_installed = {
           "json",
           "javascript",
@@ -124,8 +129,7 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
           "query",
           "go",
           "sql",
-          "solidity",
-          "python",
+          "python"
         },
         incremental_selection = {
           enable = true,
@@ -133,19 +137,18 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
             init_selection = "<C-space>",
             node_incremental = "<C-space>",
             scope_incremental = false,
-            node_decremental = "<bs>",
-          },
+            node_decremental = "<bs>"
+          }
         },
-        -- enable nvim-ts-context-commentstring plugin for commenting tsx and jsx
         context_commentstring = {
           enable = true,
-          enable_autocmd = false,
+          enable_autocmd = false
         },
         playground = {
           enable = true,
           disable = {},
-          updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
-          persist_queries = false, -- Whether the query persists across vim sessions
+          updatetime = 25,
+          persist_queries = false,
           keybindings = {
             toggle_query_editor = 'o',
             toggle_hl_groups = 'i',
@@ -156,13 +159,17 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
             unfocus_language = 'F',
             update = 'R',
             goto_node = '<cr>',
-            show_help = '?',
+            show_help = '?'
           },
         }
       })
-    end,
+    end
   },
-  { 'neovim/nvim-lspconfig' },
+  {
+    'neovim/nvim-lspconfig',
+    version = "v1.0.0"
+  },
+
   { 'williamboman/nvim-lsp-installer' },
   { 'VonHeikemen/lsp-zero.nvim',
     config = function()
@@ -686,6 +693,100 @@ let g:mkdp_browserfunc = 'OpenMarkdownPreview'
         symbol_info = {
             border = "none",
         },
+    })
+    end
+  },
+
+  {
+    "folke/lazydev.nvim",
+    ft = "lua", -- only load on lua files
+    opts = {
+      library = {
+        -- See the configuration section for more details
+        -- Load luvit types when the `vim.uv` word is found
+        { path = "luvit-meta/library", words = { "vim%.uv" } },
+      },
+    },
+  },
+  { "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
+  { -- optional cmp completion source for require statements and module annotations
+    "hrsh7th/nvim-cmp",
+    opts = function(_, opts)
+      opts.sources = opts.sources or {}
+      table.insert(opts.sources, {
+        name = "lazydev",
+        group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+      })
+    end,
+  },
+  { -- optional blink completion source for require statements and module annotations
+    "saghen/blink.cmp",
+    opts = {
+      sources = {
+        -- add lazydev to your completion providers
+        completion = {
+          enabled_providers = { "lsp", "path", "snippets", "buffer", "lazydev" },
+        },
+        providers = {
+          -- dont show LuaLS require statements when lazydev has items
+          lsp = { fallback_for = { "lazydev" } },
+          lazydev = { name = "LazyDev", module = "lazydev.integrations.blink" },
+        },
+      },
+    },
+  }
+  ,
+
+  {
+    "alduraibi/telescope-glyph.nvim",
+    config = function()
+      require('telescope').load_extension('glyph')
+    end
+  },
+  {
+    "chrisbra/unicode.vim"
+  },
+  {
+    "2KAbhishek/nerdy.nvim"
+  },
+  {
+    "WilsonOh/emoji_picker-nvim",
+    config = function()
+      require("emoji_picker").setup()
+    end,
+  },
+  {
+    "ziontee113/icon-picker.nvim",
+      config = function()
+          require("icon-picker").setup({ disable_legacy_commands = true })
+
+          -- local opts = { noremap = true, silent = true }
+
+          -- vim.keymap.set("n", "<Leader><Leader>i", "<cmd>IconPickerNormal<cr>", opts)
+          -- vim.keymap.set("n", "<Leader><Leader>y", "<cmd>IconPickerYank<cr>", opts) --> Yank the selected icon into register
+          -- vim.keymap.set("i", "<C-i>", "<cmd>IconPickerInsert<cr>", opts)
+      end
+  },
+
+  {
+    "antonk52/basics-language-server",
+    config = function()
+      require('lspconfig').basics_ls.setup({
+        settings = {
+        buffer = {
+            enable = true,
+            minCompletionLength = 4, -- only provide completions for words longer than 4 characters
+            matchStrategy = 'exact', -- or 'fuzzy'
+        },
+        path = {
+            enable = true,
+        },
+        snippet = {
+            enable = false,
+            sources = {}, -- paths to package containing snippets, see examples below
+            matchStrategy = 'exact', -- or 'fuzzy'
+        },
+      }
     })
     end
   },

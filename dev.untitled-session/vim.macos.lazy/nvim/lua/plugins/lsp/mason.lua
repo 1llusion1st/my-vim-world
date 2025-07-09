@@ -35,19 +35,18 @@ return {
     mason_lspconfig.setup({
       -- list of servers for mason to install
       ensure_installed = {
-        "tsserver",
         "html",
         "cssls",
         "tailwindcss",
         "svelte",
         "lua_ls",
         "graphql",
+        -- "solidity",
         "emmet_ls",
         "prismals",
         "pyright",
         "gopls",
         "sqlls",
-        "solidity",
         "rust_analyzer",
         "clangd",
         -- "nimls",
@@ -77,7 +76,6 @@ return {
         "eslint_d", -- js linter
         "gopls",
         "sqlls",
-        "solidity",
         "rust_analyzer",
         "rustfmt",
         "codelldb",

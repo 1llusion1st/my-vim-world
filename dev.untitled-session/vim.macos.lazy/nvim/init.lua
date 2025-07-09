@@ -36,3 +36,11 @@ require("own.luautils").setup({
 })
 require("own.markdown").setup({
 })
+
+local local_config = vim.fn.getcwd() .. '/.nvim.lua'
+if vim.fn.filereadable(local_config) == 1 then
+  vim.cmd('luafile ' .. local_config)
+end
+
+vim.cmd(":NvimTreeOpen<CR>")
+
