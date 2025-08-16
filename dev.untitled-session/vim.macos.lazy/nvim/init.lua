@@ -5,7 +5,11 @@ vim.g.loaded_netrwPlugin = 1
 -- brew install luajit
 -- luarocks --lua-dir="$(brew --prefix luajit)" install luasocket
 -- luarocks --lua-dir="$(brew --prefix luajit)" install lua-cjson
+local uv = vim.uv or vim.loop
 
+-- Надійно отримати HOME
+local HOME = vim.env.HOME or vim.fn.expand("~")
+assert(type(HOME) == "string" and HOME ~= "", "HOME is not set")
 local home = os.getenv("HOME")
 package.path  = (package.path or "") .. ";" ..
   home .. "/.luarocks/share/lua/5.1/?.lua;" ..
@@ -13,6 +17,7 @@ package.path  = (package.path or "") .. ";" ..
 package.cpath = (package.cpath or "") .. ";" ..
   home .. "/.luarocks/lib/lua/5.1/?.so"
 
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
