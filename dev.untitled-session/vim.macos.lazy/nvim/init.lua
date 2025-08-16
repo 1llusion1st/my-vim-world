@@ -1,7 +1,19 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+-- for MacOS using brew
+-- brew install luajit
+-- luarocks --lua-dir="$(brew --prefix luajit)" install luasocket
+-- luarocks --lua-dir="$(brew --prefix luajit)" install lua-cjson
+
+local home = os.getenv("HOME")
+package.path  = (package.path or "") .. ";" ..
+  home .. "/.luarocks/share/lua/5.1/?.lua;" ..
+  home .. "/.luarocks/share/lua/5.1/?/init.lua"
+package.cpath = (package.cpath or "") .. ";" ..
+  home .. "/.luarocks/lib/lua/5.1/?.so"
+
+
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
     "git",
